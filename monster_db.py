@@ -27,7 +27,7 @@ class Mons(object):
             'r_alien':['xenophobic alien', 1, 15, 6, 2, 60, 10, 'A', 12, libtcod.Color(157, 140, 144), 22, None],
             'edcom':['scary ED-COM', 2, 90, 12, 1, 40, 5, 'E', 7, libtcod.Color(129, 138, 128), 250, None],
             'x_zombie':['X-formation zombies', 4, 120, 12, 1, 40, 5, 'X', 7, libtcod.Color(144, 250, 133), 250, None],
-            'f_geese':['flock of geese', 10, 500, 20, 20, 85, 20, 'G', 12, libtcod.Color(157, 140, 144), 22, None]
+            'f_geese':['flock of geese', 10, 200, 30, 20, 85, 20, 'G', 12, libtcod.Color(157, 140, 144), 22, None]
         }
 
 
