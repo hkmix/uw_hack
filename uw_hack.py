@@ -166,7 +166,7 @@ class Mons(object):
     M = \
         {
             # Monsters
-            'player': ['engineer', 99, 100, 9, 4, 90, 10, libtcod.CHAR_SMILIE, 20, libtcod.white, 0, None, 0, False],
+            'player': ['engineer', 999, 100, 9, 4, 90, 10, libtcod.CHAR_SMILIE, 20, libtcod.white, 0, None, 0, False],
             't_zombie': ['zombie trainee', 1, 12, 3, 2, 30, 0, 'z', 7, libtcod.Color(170, 184, 170), 15, 'o_shirt', 5, False],
             's_zombie': ['zombie', 1, 15, 3, 3, 30, 0, 'z', 6, libtcod.Color(127, 142, 127), 17,  'o_shirt', 5, False],
             'r_zombie': ['expert zombie', 1, 20, 4, 3, 40, 0, 'Z', 10, libtcod.Color(127, 142, 127), 19,  'o_shirt', 8, False],
@@ -179,18 +179,18 @@ class Mons(object):
             'phys_ta': ['teaching assistant', 3, 55, 14, 10, 80, 10, 'T', 99, libtcod.Color(195, 130, 231), 75, 'answers', 10, False],
             'angry': ['angry roommate', 3, 65, 18, 7, 90, 15, 'R', 99, libtcod.Color(245, 34, 23), 90, 'keys', 10, False],
             'ece_return': ['hallucinated ECE 105 midterm', 3, 20, 35, 2, 80, 0, 'x', 12, libtcod.Color(249, 41, 82), 110, 'deflation', 90, False],
-            'thief': ['bike thief', 4, 70, 15, 23, 80, 15, 't', 99, libtcod.Color(249, 41, 82), 140, 'bicycle', 5, True],
-            'laurier': ['Laurier student', 4, 75, 20, 21, 70, 10, 'L', 99, libtcod.Color(255, 215, 0), 165, 'pride', 5, False],
-            'don': ['duty don', 4, 100, 5, 20, 80, 25, 'D', 99, libtcod.Color(61, 226, 0), 180, None, 0, False],
+            'thief': ['bike thief', 4, 70, 17, 23, 80, 15, 't', 99, libtcod.Color(249, 41, 82), 140, 'bicycle', 5, True],
+            'laurier': ['Laurier student', 4, 75, 22, 21, 70, 10, 'L', 99, libtcod.Color(255, 215, 0), 165, 'pride', 5, False],
+            'don': ['duty don', 4, 100, 7, 22, 80, 25, 'D', 99, libtcod.Color(61, 226, 0), 180, None, 0, False],
             # Bosses
             'ece': ['ECE 105 midterm', 99, 120, 15, 0, 90, 0, 'X', 99, libtcod.Color(249, 41, 82), 300, 'bell', 100, False],
-            'scribbler': ['Scribbler Bot', 99, 300, 4, 40, 50, 0, 'S', 5, libtcod.Color(231, 0, 17), 450, 'fluke', 100, True],
+            'scribbler': ['Scribbler Bot', 99, 200, 4, 40, 50, 0, 'S', 5, libtcod.Color(231, 0, 17), 450, 'fluke', 100, True],
             'coop': ['first co-op interview', 99, 80, 25, 0, 50, 15, 'C', 99, libtcod.Color(255, 193, 43), 600, 'job', 100, False],
-            'f_geese': ['flock of geese', 99, 180, 30, 5, 85, 20, 'G', 99, libtcod.white, 700, 'babygoose', 100, True],
-            'date': ['first date (ever)', 99, 250, 25, 20, 90, 20, 'D', 99, libtcod.Color(234, 63, 174), 850, 'peck', 100, True],
-            'trains': ['real-time trains course', 99, 400, 25, 25, 75, 15, 'T', 99, libtcod.Color(113, 150, 236), 1200, 'vision', 100, False],
-            'ironring': ['Iron Ring Ceremony', 99, 300, 15, 45, 85, 5, 'O', 99, libtcod.Color(192, 198, 175), 1800, 'iring', 100, False],
-            'headcom': ['HEADCOM', 99, 500, 35, 35, 90, 15, 'H', 99, libtcod.white, 5000, 'tool', 100, False]
+            'f_geese': ['flock of geese', 99, 180, 35, 5, 85, 20, 'G', 99, libtcod.white, 700, 'babygoose', 100, True],
+            'date': ['first date (ever)', 99, 250, 25, 25, 90, 20, 'D', 99, libtcod.Color(234, 63, 174), 850, 'peck', 100, True],
+            'trains': ['real-time trains course', 99, 400, 30, 25, 85, 15, 'T', 99, libtcod.Color(113, 150, 236), 1200, 'vision', 100, False],
+            'ironring': ['Iron Ring Ceremony', 99, 300, 30, 45, 85, 5, 'O', 99, libtcod.Color(192, 198, 175), 1800, 'iring', 100, False],
+            'headcom': ['HEADCOM', 99, 500, 50, 40, 90, 15, 'H', 99, libtcod.white, 5000, 'tool', 100, False]
         }
 
 
@@ -221,14 +221,14 @@ class Items(object):
             'babygoose': ['baby goose', 0, 10, -3, 10, 10, TYPE_WEAPON, "squawks at", ')', libtcod.white],
             'answers': ['answer sheet', 0, 1, 1, 20, 20, TYPE_WEAPON, "examines", '?', libtcod.Color(195, 130, 231)],
             'job': ['mediocre job', 10, 3, 5, 0, 10, TYPE_ARMOUR, "", '[', libtcod.Color(255, 193, 43)],
-            'keys': ['set of stolen keys', 0, 10, 0, 10, 10, TYPE_WEAPON, "keys", ')', libtcod.Color(252, 136, 55)],
+            'keys': ['set of stolen keys', 0, 6, 0, 10, 10, TYPE_WEAPON, "keys", ')', libtcod.Color(252, 136, 55)],
             'deflation': ['case of grade deflation', -15, -15, -15, -50, 60, TYPE_ARMOUR, "", '[', libtcod.Color(255, 90, 90)],
-            'bicycle': ['"second-hand" bicycle', 20, 10, 17, 0, 20, TYPE_WEAPON, "rides circles around", '[', libtcod.Color(137, 161, 232)],
+            'bicycle': ['"second-hand" bicycle', 20, 5, 15, 0, 20, TYPE_WEAPON, "rides circles around", '[', libtcod.Color(137, 161, 232)],
             'pride': ['sense of pride', 20, 9, 9, 15, 15, TYPE_ARMOUR, "", '[', libtcod.Color(255, 215, 0)],
             'peck': ['peck on the cheek', 40, 5, 10, 10, 10, TYPE_WEAPON, "blushes at", libtcod.CHAR_HEART, libtcod.Color(234, 63, 174)],
-            'vision': ['vision', 150, 0, 0, 0, 0, TYPE_INSTANT, "", '!', libtcod.Color(242, 101, 190)],
-            'iring': ['iron ring', 40, 0, 25, 20, -20, TYPE_ARMOUR, "", 'o', libtcod.Color(192, 198, 175)],
-            'tool': ['Ridgid 60"', 500, 99, 99, 50, 50, TYPE_WEAPON, "brings divine justice on", '|', libtcod.Color(192, 192, 192)]
+            'vision': ['sense of vision', 150, 0, 0, 0, 0, TYPE_INSTANT, "", '!', libtcod.Color(255, 211, 0)],
+            'iring': ['iron ring', 40, 0, 20, 20, -20, TYPE_ARMOUR, "", 'o', libtcod.Color(192, 198, 175)],
+            'tool': ['Ridgid 60"', 250, 120, 120, 50, 50, TYPE_WEAPON, "brings divine justice on", '|', libtcod.Color(192, 192, 192)]
         }
 
 
@@ -361,7 +361,7 @@ MSG_DISPLAY = 5
 HP_THRESHOLD_GOOD = 50
 HP_THRESHOLD_OKAY = 20
 
-STARTING_CREATURES = 200
+STARTING_CREATURES = 300
 
 M = Mons
 I = Items
@@ -425,7 +425,9 @@ def create_monster(out_of_view=False):
     # Create array of possible monsters
     possible = []
     for entry in M.M:
-        if M.M[entry][M.LVL] <= p_level:
+        if M.M[entry][M.LVL] <= p_level and p_level != 99:
+            possible.append(entry)
+        if p_level == 99 and M.M[entry][M.LVL] == p_level:
             possible.append(entry)
     r = possible[libtcod.random_get_int(0, 0, len(possible) - 1)]
     x = 0
@@ -741,7 +743,7 @@ def check_level():
 
 
 def check_turn():
-    if p_turn % 10 == 0:
+    if p_turn % max(12 - p_level, 1) == 0:
         mons = create_monster(True)
         objects.append(mons)
 
@@ -923,6 +925,8 @@ def render_all():
     libtcod.console_print(msg, 7, SCREEN_HEIGHT - 10, "/" + str(player.character.mhp) + str_hp)
     if p_weapon is not None and p_weapon.name == I.I['tool'][I.NAME]:
         libtcod.console_print(msg, 0, SCREEN_HEIGHT - 12, "LVL Graduated!")
+        global p_level
+        p_level = 99
     else:
         libtcod.console_print(msg, 0, SCREEN_HEIGHT - 12, "LVL " + str(p_level))
     libtcod.console_print(msg, 0, SCREEN_HEIGHT - 9, "EXP " + (len(str(p_reqexp)) - len(str(p_exp))) * ' ' +
