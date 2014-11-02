@@ -85,6 +85,7 @@ class Msg(object):
     SPAWN_IRONRING = "Five years later..."
     SPAWN_DATE = "Can't believe that pick-up line worked!"
     SPAWN_HEADCOM = "This is it! Go get the Tool!"
+    TRAIN = "Choo choo!"
 
 
 class Character():
@@ -519,6 +520,8 @@ def player_move(d_x, d_y):
                 if player.character.hp > 0:
                     msg_add(Msg.WATER)
                     player.character.take_dmg(WATER_DMG)
+            elif the_map[player.x][player.y].gnd == '=' and libtcod.random_get_int(0, 0, 10) == 0:
+                msg_add(Msg.TRAIN)
             global p_fov_recalc
             p_fov_recalc = True
         elif move_result == MV_OBJ:
