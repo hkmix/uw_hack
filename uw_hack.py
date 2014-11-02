@@ -71,7 +71,14 @@ class Msg(object):
     NO_ARMOUR = "Bare skin"
     NO_WEAPON = "Fists"
     ITM_SLEEP = "You finally get some sleep."
+    ITM_VISION = "You gain vision."
     SPAWN_ECE = "It is now time for the ECE 105 midterm."
+    SPAWN_COOP = "Hey look! A job interview!"
+    SPAWN_FGEESE = "It's mating season!"
+    SPAWN_TRAINS = "This was the wrong course to take."
+    SPAWN_SCRIBBLER = "You never thought you'd see this guy again."
+    SPAWN_IRONRING = "Five years later..."
+    SPAWN_DATE = "Can't believe that pick-up line worked!"
 
 
 class Character():
@@ -106,10 +113,10 @@ class Character():
         does_hit = libtcod.random_get_int(0, 0, 100)
         if does_hit > self.acc - target.character.avo:
             # Miss
-            msg_add("The " + self.owner.name + " swings at the " + target.name + " and misses!")
+            msg_add("The " + self.owner.name + " misses the " + target.name + "!")
         elif does_hit <= round((self.acc - target.character.avo) / 15):
             # Critical chance: ACC / 15
-            dmg = libtcod.random_get_int(0, max_dmg, max_dmg * 2)
+            dmg = max(libtcod.random_get_int(0, max_dmg, max_dmg * 2), 0)
             if target.name == M.M['edcom'][M.NAME]:
                 msg_add("The " + self.owner.name + " seriously respects the " + target.name + " and is granted " + str(dmg) + " damage.")
             elif target.align == Object.ALIGN_ENEMY and has_weapon:
@@ -119,7 +126,7 @@ class Character():
             target.character.take_dmg(dmg)
         else:
             # Regular hit
-            dmg = libtcod.random_get_int(0, 0, max_dmg)
+            dmg = max(libtcod.random_get_int(0, 0, max_dmg), 0)
             if target.name == M.M['edcom'][M.NAME]:
                 msg_add("The " + self.owner.name + " respects the " + target.name + " and is granted " + str(dmg) + " damage.")
             elif target.align == Object.ALIGN_ENEMY and has_weapon:
@@ -152,16 +159,31 @@ class Mons(object):
 
     M = \
         {
-            'player': ['engineer', 99, 100, 9, 4, 90, 10, libtcod.CHAR_SMILIE, 15, libtcod.white, 0, None, 0],
-            't_zombie': ['zombie trainee', 1, 12, 3, 2, 30, 0, 'z', 7, libtcod.Color(170, 184, 170), 12, 'o_shirt', 3],
-            's_zombie': ['zombie', 1, 15, 3, 3, 30, 0, 'z', 6, libtcod.Color(127, 142, 127), 15,  'o_shirt', 4],
-            'r_zombie': ['expert zombie', 1, 20, 4, 3, 40, 0, 'Z', 10, libtcod.Color(127, 142, 127), 20,  'o_shirt', 5],
-            'b_alien': ['unfriendly alien', 1, 10, 5, 1, 60, 5, 'a', 15, libtcod.Color(189, 174, 182), 15, 'mtool', 6],
-            'r_alien': ['xenophobic alien', 1, 15, 6, 2, 60, 10, 'A', 16, libtcod.Color(187, 180, 184), 22, 'mtool', 8],
-            'edcom': ['scary ED-COM', 2, 75, 12, 1, 40, 5, 'E', 99, libtcod.Color(169, 178, 168), 50, 'mtool', 20],
-            'ece': ['ECE 105 midterm', 99, 120, 15, 0, 90, 0, 'X', 15, libtcod.Color(249, 41, 82), 300, 'bell', 100],
-            'x_zombie': ['X-formation zombies', 99, 120, 12, 1, 40, 5, 'X', 7, libtcod.Color(144, 250, 133), 250, None, 0],
-            'f_geese': ['flock of geese', 99, 200, 30, 20, 85, 20, 'G', 12, libtcod.Color(157, 140, 144), 22, None, 0]
+            # Monsters
+            'player': ['engineer', 99, 100, 9, 4, 90, 10, libtcod.CHAR_SMILIE, 15, libtcod.white, 0, None, 0, False],
+            't_zombie': ['zombie trainee', 1, 12, 3, 2, 30, 0, 'z', 7, libtcod.Color(170, 184, 170), 12, 'o_shirt', 5, False],
+            's_zombie': ['zombie', 1, 15, 3, 3, 30, 0, 'z', 6, libtcod.Color(127, 142, 127), 15,  'o_shirt', 5, False],
+            'r_zombie': ['expert zombie', 1, 20, 4, 3, 40, 0, 'Z', 10, libtcod.Color(127, 142, 127), 20,  'o_shirt', 8, False],
+            'b_alien': ['unfriendly alien', 1, 10, 5, 1, 60, 5, 'a', 15, libtcod.Color(189, 174, 182), 15, 'mtool', 6, False],
+            'r_alien': ['xenophobic alien', 1, 15, 6, 2, 60, 10, 'A', 16, libtcod.Color(187, 180, 184), 22, 'mtool', 8, False],
+            'edcom': ['scary ED-COM', 2, 75, 12, 1, 40, 5, 'E', 99, libtcod.Color(169, 178, 168), 40, 'mtool', 20, False],
+            'goose': ['goose', 2, 10, 15, 0, 90, 15, 'g', 15, libtcod.white, 20, 'feather', 50, True],
+            'assig': ['complicated assignment', 2, 60, 9, 8, 85, 25, libtcod.CHAR_DIVISION, 20, libtcod.Color(255, 235, 137), 45, 'sleep', 80, False],
+            'alarm': ['dreaded alarm', 2, 50, 10, 10, 80, 35, libtcod.CHAR_EXCLAM_DOUBLE, 20, libtcod.Color(255, 178, 137), 55, 'sleep', 80, False],
+            'phys_ta': ['teaching assistant', 3, 55, 14, 10, 80, 10, 'T', 20, libtcod.Color(195, 130, 231), 75, 'answers', 10, False],
+            'angry': ['angry roommate', 3, 65, 18, 7, 90, 15, 'R', 20, libtcod.Color(245, 34, 23), 85, 'keys', 10, False],
+            'ece_return': ['hallucinated ECE 105 midterm', 3, 20, 35, 2, 80, 0, 'x', 20, libtcod.Color(249, 41, 82), 100, 'deflation', 90, False],
+            'thief': ['bike thief', 4, 70, 15, 23, 80, 15, 't', 20, libtcod.Color(249, 41, 82), 120, 'bicycle', 5, True],
+            'laurier': ['Laurier student', 4, 75, 20, 21, 70, 10, 'L', 20, libtcod.Color(255, 215, 0), 135, 'pride', 5, False],
+            'don': ['duty don', 4, 100, 5, 20, 80, 25, 'D', 20, libtcod.Color(61, 226, 0), 150, None, 0, False],
+            # Bosses
+            'ece': ['ECE 105 midterm', 99, 120, 15, 0, 90, 0, 'X', 15, libtcod.Color(249, 41, 82), 300, 'bell', 100, False],
+            'scribbler': ['Scribbler Bot', 99, 300, 4, 40, 50, 0, 'S', 15, libtcod.Color(231, 0, 17), 450, 'fluke', 100, True],
+            'coop': ['first co-op interview', 99, 80, 25, 0, 50, 15, 'C', 15, libtcod.Color(255, 193, 43), 400, 'job', 100, False],
+            'f_geese': ['flock of geese', 99, 150, 30, 5, 85, 20, 'G', 15, libtcod.white, 500, 'babygoose', 100, True],
+            'date': ['first date (ever)', 99, 200, 20, 25, 90, 20, 'D', 15, libtcod.Color(234, 63, 174), 750, 'peck', 100, True],
+            'trains': ['real-time trains course', 99, 250, 25, 25, 75, 15, 'T', 15, libtcod.Color(113, 150, 236), 1000, 'vision', 100, False],
+            'ironring': ['Iron Ring Ceremony', 99, 300, 10, 20, 85, 5, 'O', 15, libtcod.Color(192, 198, 175), 1500, 'iring', 100, False]
         }
 
 
@@ -184,9 +206,21 @@ class Items(object):
     I = \
         {
             'o_shirt': ['light-red orientation shirt', 5, 0, 1, 0, 2, TYPE_ARMOUR, "", '[', libtcod.Color(255, 90, 90)],
-            'bell': ['bell curve', 20, 0, 0, 0, 15, TYPE_ARMOUR, "", '[', libtcod.Color(255, 90, 90)],
+            'bell': ['bell curve', 20, -5, 6, 0, 15, TYPE_ARMOUR, "", '[', libtcod.Color(255, 90, 90)],
             'mtool': ['somewhat functional multitool', 0, 1, 0, 5, 0, TYPE_WEAPON, "weakly prods", ')', libtcod.Color(255, 217, 0)],
-            'sleep': ['good night\'s rest', 20, 0, 0, 0, 0, TYPE_INSTANT, "", '!', libtcod.Color(242, 101, 190)]
+            'sleep': ['good night\'s rest', 20, 0, 0, 0, 0, TYPE_INSTANT, "", '!', libtcod.Color(242, 101, 190)],
+            'feather': ['feather', 0, 1, 0, -20, 0, TYPE_WEAPON, "tickles", ')', libtcod.white],
+            'fluke': ['Fluke module', 0, 8, 8, -50, 10, TYPE_WEAPON, "poorly scans", libtcod.CHAR_BLOCK2, libtcod.Color(62, 232, 107)],
+            'babygoose': ['baby goose', 0, 10, -3, 10, 10, TYPE_WEAPON, "squawks at", ')', libtcod.white],
+            'answers': ['answer sheet', 0, 1, 1, 20, 20, TYPE_WEAPON, "examines", '?', libtcod.Color(195, 130, 231)],
+            'job': ['mediocre job', 10, 3, 5, 0, 10, TYPE_ARMOUR, "", '[', libtcod.Color(255, 193, 43)],
+            'keys': ['stolen keys', 0, 6, 0, 0, 10, TYPE_WEAPON, "keys", ')', libtcod.Color(252, 136, 55)],
+            'deflation': ['grade deflation', -15, -15, -15, -50, 60, TYPE_ARMOUR, "", '[', libtcod.Color(255, 90, 90)],
+            'bicycle': ['"second-hand" bicycle', 20, 5, 7, 0, 20, TYPE_WEAPON, "rides circles around", '[', libtcod.Color(137, 161, 232)],
+            'pride': ['sense of pride', 20, 5, 5, 5, 5, TYPE_ARMOUR, "", '[', libtcod.Color(255, 215, 0)],
+            'peck': ['peck on the cheek', 40, 5, 5, 10, 10, TYPE_WEAPON, "blushes at", libtcod.CHAR_HEART, libtcod.Color(234, 63, 174)],
+            'vision': ['vision', 100, 0, 0, 0, 0, TYPE_INSTANT, "", '!', libtcod.Color(242, 101, 190)],
+            'iring': ['iron ring', 40, -5, 20, 0, -10, TYPE_ARMOUR, "", 'o', libtcod.Color(192, 198, 175)]
         }
 
 
@@ -341,6 +375,7 @@ has_weapon = False
 p_armour = None
 SLEEP_RESTORE = 30
 SLEEP_RATE = 15
+LEVEL_HITS = 20
 
 # Keys
 KEY_ESCAPE = libtcod.KEY_ESCAPE
@@ -368,11 +403,11 @@ colour_hp_okay = libtcod.Color(255, 204, 51)
 colour_hp_bad = libtcod.Color(255, 51, 102)
 
 
-def create_monster():
+def create_monster(out_of_view=False):
     # Create array of possible monsters
     possible = []
     for entry in M.M:
-        if M.M[entry][M.LVL] - p_level <= 1:
+        if M.M[entry][M.LVL] <= p_level:
             possible.append(entry)
     r = possible[libtcod.random_get_int(0, 0, len(possible) - 1)]
     x = 0
@@ -380,7 +415,9 @@ def create_monster():
     while True:
         x = libtcod.random_get_int(0, 1, MAP_WIDTH - 1)
         y = libtcod.random_get_int(0, 1, MAP_HEIGHT - 1)
-        if legal_move(x, y) == MV_OKAY:
+        if legal_move(x, y) == MV_OKAY and not out_of_view:
+            break
+        if legal_move(x, y) == MV_OKAY and out_of_view and not libtcod.map_is_in_fov(fov_map, x, y):
             break
     new_mons_char = Character(M.M[r][M.HP], M.M[r][M.ATK], M.M[r][M.DEF], M.M[r][M.ACC], M.M[r][M.AVO], M.M[r][M.VIS],
                               M.M[r][M.COL], M.M[r][M.EXP], M.M[r][M.RATE], death_func=monster_death)
@@ -389,7 +426,8 @@ def create_monster():
     else:
         new_mons_char.drop = None
     new_mons_ai = Monster()
-    if M.M[r][]
+    if M.M[r][M.SPD]:
+        new_mons_ai = MonsterDouble()
     new_mons = Object(x, y, M.M[r][M.NAME], M.M[r][M.CHAR], M.M[r][M.COL], True, Object.ALIGN_ENEMY,
                       character=new_mons_char, behaviour=new_mons_ai)
     return new_mons
@@ -428,7 +466,7 @@ def msg_add(new_msg):
         return
     if len(msg_history) >= MSG_HISTORY_MAX:
         del msg_history[0]
-    msg_history.insert(0, new_msg)
+    msg_history.append(new_msg)
 
 
 def player_death(obj):
@@ -486,10 +524,10 @@ def handle_keys():
     key = libtcod.console_wait_for_keypress(True)
     if key.vk == KEY_ESCAPE:
         return STATE_EXIT
-    if key.c == KEY_C_GET:
-        player_pickup()
-        return STATE_PLAY
     if global_state == STATE_PLAY:
+        if key.c == KEY_C_GET:
+            player_pickup()
+            return STATE_PLAY
         if libtcod.console_is_key_pressed(KEY_UP):
             player_move(0, -1)
         elif libtcod.console_is_key_pressed(KEY_DOWN):
@@ -514,6 +552,10 @@ def player_pickup():
                 if itm.name == I.I['sleep'][I.NAME]:
                     msg_add(Msg.ITM_SLEEP)
                     player.character.take_dmg(-30)
+                    items.remove(itm)
+                if itm.name == I.I['vision'][I.NAME]:
+                    msg_add(Msg.ITM_VISION)
+                    player.character.mhp += 100
                     items.remove(itm)
             else:
                 msg_add("You pick up " + grammar_a(itm.name) + " " + itm.name + ".")
@@ -568,8 +610,14 @@ def player_pickup():
                     player.character.avo -= p_weapon.avo_bst
                     player.character.mhp -= p_weapon.hp_bst
                     p_weapon = itm
+            if did_pickup:
+                if player.character.hp > player.character.mhp:
+                    player.character.hp = player.character.mhp
+                break
     if not did_pickup:
         msg_add(Msg.NO_PICKUP)
+    global p_turn
+    p_turn += 1
 
 
 def make_map():
@@ -620,15 +668,15 @@ def monster_death(monster):
                         monster.name + ".")
     if p_exp >= p_reqexp:
         p_exp -= p_reqexp
-        # Formula: LVL^1.5 * 100 rounded to nearest 100
+        # Formula: LVL^1.5 * 150 rounded to nearest 100
         p_level += 1
-        p_reqexp = int(math.pow(p_level, 1.5) * 100) - int(math.pow(p_level, 1.5) * 200) % 100
+        p_reqexp = int(math.pow(p_level, 1.5) * 150) - int(math.pow(p_level, 1.5) * 150) % 100
         gain_atk = libtcod.random_get_int(0, 0, p_skillpoints)
         gain_def = p_skillpoints - gain_atk
         msg_add("Level up! You gain " + str(gain_atk) + " attack power and " + str(gain_def) + " defence power.")
         player.character.atk += gain_atk
         player.character.df += gain_def
-        player.character.mhp += gain_def * p_hpup
+        player.character.mhp += gain_def * p_hpup + LEVEL_HITS
         player.character.hp = player.character.mhp
         check_level()
     monster.blocks = False
@@ -639,9 +687,29 @@ def monster_death(monster):
 
 def check_level():
     if p_level == 2:
-        # ECE 105 midterm
         objects.append(try_spawn('ece'))
         msg_add(Msg.SPAWN_ECE)
+    if p_level == 3:
+        objects.append(try_spawn('scribbler'))
+        msg_add(Msg.SPAWN_SCRIBBLER)
+    if p_level == 4:
+        objects.append(try_spawn('coop'))
+        msg_add(Msg.SPAWN_COOP)
+    if p_level == 5:
+        objects.append(try_spawn('f_geese'))
+        msg_add(Msg.SPAWN_FGEESE)
+    if p_level == 6:
+        objects.append(try_spawn('date'))
+        msg_add(Msg.SPAWN_DATE)
+    if p_level == 7:
+        objects.append(try_spawn('trains'))
+        msg_add(Msg.SPAWN_TRAINS)
+
+
+def check_turn():
+    if p_turn % 10 == 0:
+        mons = create_monster(True)
+        objects.append(mons)
 
 
 def try_spawn(name):
@@ -720,9 +788,9 @@ def render_all():
         if libtcod.map_is_in_fov(fov_map, obj.x, obj.y):
             if obj.x == player.x and obj.y == player.y and obj.align == Object.ALIGN_ENEMY and did_move and not obj.blocks:
                 if obj.name == M.M['edcom'][M.NAME]:
-                    msg_add(grammar_a(obj.name).capitalize() + " " + obj.name + " is sleeping gracefully here.")
+                    msg_add(grammar_a(obj.name).capitalize() + " " + obj.name + " is not entertained.")
                 else:
-                    msg_add("The brutalized remains of " + grammar_a(obj.name) + " " + obj.name + " are here.")
+                    msg_add(grammar_a(obj.name).capitalize() + " " + obj.name + " sleeps here forever.")
             obj.draw()
     #   Items
     for itm in items:
@@ -750,7 +818,7 @@ def render_all():
         libtcod.console_set_default_foreground(msg, libtcod.Color(255-255/(MSG_DISPLAY + 1)*i,
                                                                   255-255/(MSG_DISPLAY + 1)*i,
                                                                   255-255/(MSG_DISPLAY + 1)*i))
-        libtcod.console_print(msg, 0, i, msg_history[i])
+        libtcod.console_print(msg, 0, i, msg_history[len(msg_history) - 1 - i])
     # HUD
     libtcod.console_set_default_foreground(msg, colour_default)
     equip_atk = 0
@@ -785,6 +853,16 @@ def render_all():
         str_avo = " (+" + str(equip_avo) + ")"
     if equip_hp > 0:
         str_hp = " (+" + str(equip_hp) + ")"
+    if equip_atk < 0:
+        str_atk = " (" + str(equip_atk) + ")"
+    if equip_def < 0:
+        str_def = " (" + str(equip_def) + ")"
+    if equip_acc < 0:
+        str_acc = " (" + str(equip_acc) + ")"
+    if equip_avo < 0:
+        str_avo = " (" + str(equip_avo) + ")"
+    if equip_hp < 0:
+        str_hp = " (" + str(equip_hp) + ")"
     libtcod.console_print(msg, 0, SCREEN_HEIGHT - 4, "ATK " + str(player.character.atk) + str(str_atk))
     libtcod.console_print(msg, 0, SCREEN_HEIGHT - 3, "DEF " + str(player.character.df) + str(str_def))
     libtcod.console_print(msg, 0, SCREEN_HEIGHT - 2, "ACC " + str(player.character.acc) + str(str_acc))
@@ -837,6 +915,7 @@ make_map()
 # Main loop
 while not libtcod.console_is_window_closed():
     # Output
+    check_turn()
     render_all()
     libtcod.console_flush()
     # Input
