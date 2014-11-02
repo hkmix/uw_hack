@@ -189,7 +189,7 @@ class Mons(object):
             'date': ['first date (ever)', 99, 200, 20, 25, 90, 20, 'D', 15, libtcod.Color(234, 63, 174), 750, 'peck', 100, True],
             'trains': ['real-time trains course', 99, 250, 25, 25, 75, 15, 'T', 15, libtcod.Color(113, 150, 236), 1000, 'vision', 100, False],
             'ironring': ['Iron Ring Ceremony', 99, 300, 10, 20, 85, 5, 'O', 15, libtcod.Color(192, 198, 175), 1500, 'iring', 100, False],
-            'headcom': ['HEADCOM', 99, 400, 30, 40, 90, 15, 'H', 15, libtcod.white, 5000, 'tool', 100, False]
+            'headcom': ['HEADCOM', 99, 500, 30, 40, 90, 15, 'H', 15, libtcod.white, 5000, 'tool', 100, False]
         }
 
 
@@ -722,6 +722,9 @@ def check_level():
     if p_level == 7:
         objects.append(try_spawn('trains'))
         msg_add(Msg.SPAWN_TRAINS)
+    if p_level == 8:
+        objects.append(try_spawn('headcom'))
+        msg_add(Msg.SPAWN_HEADCOM)
 
 
 def check_turn():
