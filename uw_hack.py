@@ -362,7 +362,7 @@ MSG_DISPLAY = 5
 HP_THRESHOLD_GOOD = 50
 HP_THRESHOLD_OKAY = 20
 
-STARTING_CREATURES = 400
+STARTING_CREATURES = 300
 
 M = Mons
 I = Items
@@ -674,10 +674,16 @@ def monster_death(monster):
         if libtcod.random_get_int(0, 1, 100) <= monster.character.rate:
             do_drop = True
             did_drop_item = True
+            i = -1
             for itm in items:
-                if itm.x == monster.x and itm.y == monster.y:
+                if itm.x == monster.x and itm.y == monster.y and monster.character.rate < 100:
                     do_drop = False
+                if itm.x == monster.x and itm.y == monster.y and monster.character.rate == 100:
+                    do_drop = True
+                    i = items.index(itm)
             if do_drop:
+                if i >= 0:
+                    del items[i]
                 # Drop item
                 n = monster.character.drop
                 new_item = Item(I.I[n][I.NAME], I.I[n][I.HP], I.I[n][I.ATK], I.I[n][I.DEF], I.I[n][I.ACC], I.I[n][I.AVO],
@@ -701,9 +707,9 @@ def monster_death(monster):
                         monster.name + ".")
     if p_exp >= p_reqexp:
         p_exp -= p_reqexp
-        # Formula: LVL^1.5 * 150 rounded to nearest 100
+        # Formula: LVL^1.5 * 200 rounded to nearest 100
         p_level += 1
-        p_reqexp = int(math.pow(p_level, 1.5) * 150) - int(math.pow(p_level, 1.5) * 150) % 100
+        p_reqexp = int(math.pow(p_level, 1.5) * 200) - int(math.pow(p_level, 1.5) * 200) % 100
         gain_atk = libtcod.random_get_int(0, 0, p_skillpoints)
         gain_def = p_skillpoints - gain_atk
         msg_add("Level up! You gain " + str(gain_atk) + " attack power and " + str(gain_def) + " defence power.")
