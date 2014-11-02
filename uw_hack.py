@@ -166,7 +166,7 @@ class Mons(object):
     M = \
         {
             # Monsters
-            'player': ['engineer', 999, 100, 9, 4, 90, 10, libtcod.CHAR_SMILIE, 20, libtcod.white, 0, None, 0, False],
+            'player': ['engineer', 999, 120, 9, 5, 90, 10, libtcod.CHAR_SMILIE, 20, libtcod.white, 0, None, 0, False],
             't_zombie': ['zombie trainee', 1, 12, 3, 2, 30, 0, 'z', 7, libtcod.Color(170, 184, 170), 15, 'o_shirt', 5, False],
             's_zombie': ['zombie', 1, 15, 3, 3, 30, 0, 'z', 6, libtcod.Color(127, 142, 127), 17,  'o_shirt', 5, False],
             'r_zombie': ['expert zombie', 1, 20, 4, 3, 40, 0, 'Z', 10, libtcod.Color(127, 142, 127), 19,  'o_shirt', 8, False],
@@ -190,7 +190,8 @@ class Mons(object):
             'date': ['first date (ever)', 99, 250, 25, 25, 90, 20, 'D', 99, libtcod.Color(234, 63, 174), 850, 'peck', 100, True],
             'trains': ['real-time trains course', 99, 400, 30, 25, 85, 15, 'T', 99, libtcod.Color(113, 150, 236), 1200, 'vision', 100, False],
             'ironring': ['Iron Ring Ceremony', 99, 300, 30, 45, 85, 5, 'O', 99, libtcod.Color(192, 198, 175), 1800, 'iring', 100, False],
-            'headcom': ['HEADCOM', 99, 500, 50, 40, 90, 15, 'H', 99, libtcod.white, 5000, 'tool', 100, False]
+            'headcom': ['HEADCOM', 99, 500, 50, 40, 90, 15, 'H', 99, libtcod.white, 5000, 'tool', 100, False],
+            'dragon': ['twenty-headed dragon', 99, 999, 99, 50, 100, 25, libtcod.CHAR_DIAMOND, 99, libtcod.white, 5000, None, 0, True]
         }
 
 
