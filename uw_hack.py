@@ -190,7 +190,7 @@ class Mons(object):
             'date': ['first date (ever)', 99, 250, 25, 20, 90, 20, 'D', 99, libtcod.Color(234, 63, 174), 850, 'peck', 100, True],
             'trains': ['real-time trains course', 99, 400, 25, 25, 75, 15, 'T', 99, libtcod.Color(113, 150, 236), 1200, 'vision', 100, False],
             'ironring': ['Iron Ring Ceremony', 99, 300, 15, 45, 85, 5, 'O', 99, libtcod.Color(192, 198, 175), 1800, 'iring', 100, False],
-            'headcom': ['HEADCOM', 99, 500, 35, 40, 90, 15, 'H', 99, libtcod.white, 5000, 'tool', 100, False]
+            'headcom': ['HEADCOM', 99, 500, 35, 35, 90, 15, 'H', 99, libtcod.white, 5000, 'tool', 100, False]
         }
 
 
@@ -221,13 +221,13 @@ class Items(object):
             'babygoose': ['baby goose', 0, 10, -3, 10, 10, TYPE_WEAPON, "squawks at", ')', libtcod.white],
             'answers': ['answer sheet', 0, 1, 1, 20, 20, TYPE_WEAPON, "examines", '?', libtcod.Color(195, 130, 231)],
             'job': ['mediocre job', 10, 3, 5, 0, 10, TYPE_ARMOUR, "", '[', libtcod.Color(255, 193, 43)],
-            'keys': ['stolen keys', 0, 6, 0, 0, 10, TYPE_WEAPON, "keys", ')', libtcod.Color(252, 136, 55)],
-            'deflation': ['grade deflation', -15, -15, -15, -50, 60, TYPE_ARMOUR, "", '[', libtcod.Color(255, 90, 90)],
-            'bicycle': ['"second-hand" bicycle', 20, 5, 7, 0, 20, TYPE_WEAPON, "rides circles around", '[', libtcod.Color(137, 161, 232)],
-            'pride': ['sense of pride', 20, 5, 5, 5, 5, TYPE_ARMOUR, "", '[', libtcod.Color(255, 215, 0)],
-            'peck': ['peck on the cheek', 40, 5, 5, 10, 10, TYPE_WEAPON, "blushes at", libtcod.CHAR_HEART, libtcod.Color(234, 63, 174)],
-            'vision': ['vision', 100, 0, 0, 0, 0, TYPE_INSTANT, "", '!', libtcod.Color(242, 101, 190)],
-            'iring': ['iron ring', 40, -5, 20, 0, -10, TYPE_ARMOUR, "", 'o', libtcod.Color(192, 198, 175)],
+            'keys': ['set of stolen keys', 0, 10, 0, 10, 10, TYPE_WEAPON, "keys", ')', libtcod.Color(252, 136, 55)],
+            'deflation': ['case of grade deflation', -15, -15, -15, -50, 60, TYPE_ARMOUR, "", '[', libtcod.Color(255, 90, 90)],
+            'bicycle': ['"second-hand" bicycle', 20, 10, 17, 0, 20, TYPE_WEAPON, "rides circles around", '[', libtcod.Color(137, 161, 232)],
+            'pride': ['sense of pride', 20, 9, 9, 15, 15, TYPE_ARMOUR, "", '[', libtcod.Color(255, 215, 0)],
+            'peck': ['peck on the cheek', 40, 5, 10, 10, 10, TYPE_WEAPON, "blushes at", libtcod.CHAR_HEART, libtcod.Color(234, 63, 174)],
+            'vision': ['vision', 150, 0, 0, 0, 0, TYPE_INSTANT, "", '!', libtcod.Color(242, 101, 190)],
+            'iring': ['iron ring', 40, 0, 25, 20, -20, TYPE_ARMOUR, "", 'o', libtcod.Color(192, 198, 175)],
             'tool': ['Ridgid 60"', 500, 99, 99, 50, 50, TYPE_WEAPON, "brings divine justice on", '|', libtcod.Color(192, 192, 192)]
         }
 
@@ -240,6 +240,15 @@ class Monster(object):
                 monster.move_towards(player)
             else:
                 monster.character.attack(player)
+        else:
+            # Roam
+            d_x = libtcod.random_get_int(0, -1, 1)
+            d_y = libtcod.random_get_int(0, -1, 1)
+            if libtcod.random_get_int(0, 0, 1) == 1:
+                d_x = 0
+            else:
+                d_y = 0
+            monster.move(d_x, d_y)
 
 
 class MonsterDouble(object):
@@ -349,8 +358,8 @@ FOV_ALG = 0
 MSG_HISTORY_MAX = 100
 MSG_DISPLAY = 5
 
-HP_THRESHOLD_GOOD = 80
-HP_THRESHOLD_OKAY = 30
+HP_THRESHOLD_GOOD = 50
+HP_THRESHOLD_OKAY = 20
 
 STARTING_CREATURES = 200
 
@@ -370,8 +379,8 @@ p_turn = 0
 p_level = 1
 p_exp = 0
 p_reqexp = 100
-p_skillpoints = 3
-p_hpup = 5
+p_skillpoints = 4
+p_hpup = 10
 did_move = False
 
 # Items
