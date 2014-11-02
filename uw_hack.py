@@ -191,7 +191,7 @@ class Mons(object):
             'trains': ['real-time trains course', 99, 400, 30, 25, 85, 15, 'T', 99, libtcod.Color(113, 150, 236), 1200, 'vision', 100, False],
             'ironring': ['Iron Ring Ceremony', 99, 300, 30, 45, 85, 5, 'O', 99, libtcod.Color(192, 198, 175), 1800, 'iring', 100, False],
             'headcom': ['HEADCOM', 99, 500, 50, 40, 90, 15, 'H', 99, libtcod.white, 5000, 'tool', 100, False],
-            'dragon': ['twenty-headed dragon', 99, 999, 99, 50, 100, 25, libtcod.CHAR_DIAMOND, 99, libtcod.white, 5000, None, 0, True]
+            'dragon': ['twenty-headed dragon', 99, 999, 99, 99, 100, 25, libtcod.CHAR_DIAMOND, 99, libtcod.white, 5000, None, 0, True]
         }
 
 
