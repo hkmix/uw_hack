@@ -905,7 +905,10 @@ def render_all():
                           str(player.character.hp))
     libtcod.console_set_default_foreground(msg, colour_default)
     libtcod.console_print(msg, 7, SCREEN_HEIGHT - 10, "/" + str(player.character.mhp) + str_hp)
-    libtcod.console_print(msg, 0, SCREEN_HEIGHT - 12, "LVL " + str(p_level))
+    if p_weapon is not None and p_weapon.name == I.I['tool'][I.NAME]:
+        libtcod.console_print(msg, 0, SCREEN_HEIGHT - 12, "LVL Graduated!")
+    else:
+        libtcod.console_print(msg, 0, SCREEN_HEIGHT - 12, "LVL " + str(p_level))
     libtcod.console_print(msg, 0, SCREEN_HEIGHT - 9, "EXP " + (len(str(p_reqexp)) - len(str(p_exp))) * ' ' +
                           str(p_exp) + "/" + str(p_reqexp))
     # Armour
@@ -933,7 +936,11 @@ def make_title():
     libtcod.console_clear(buf)
     libtcod.console_clear(msg)
     libtcod.console_set_default_foreground(msg, colour_default)
-    libtcod.console_print(msg, 4, SCREEN_HEIGHT / 2, "ENGHack 2014 @ University at Waterloo")
+    libtcod.console_print(msg, 4, SCREEN_HEIGHT - 18, "Controls:")
+    libtcod.console_print(msg, 4, SCREEN_HEIGHT - 17, "   arrow keys - move & attack")
+    libtcod.console_print(msg, 4, SCREEN_HEIGHT - 16, "   , (comma) - pick up")
+    libtcod.console_print(msg, 4, SCREEN_HEIGHT - 10, "Press Enter to start")
+    libtcod.console_print(msg, 4, SCREEN_HEIGHT - 4, "ENGHack 2014 @ University of Waterloo")
     bg = libtcod.image_load("bg.png")
     libtcod.image_blit_rect(bg, msg, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, libtcod.BKGND_ADD)
     libtcod.console_blit(blank, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, 0, 0, 0)
