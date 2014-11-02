@@ -84,6 +84,7 @@ class Msg(object):
     SPAWN_SCRIBBLER = "You never thought you'd see this guy again."
     SPAWN_IRONRING = "Five years later..."
     SPAWN_DATE = "Can't believe that pick-up line worked!"
+    SPAWN_HEADCOM = "This is it! Go get the Tool!"
 
 
 class Character():
@@ -165,31 +166,31 @@ class Mons(object):
     M = \
         {
             # Monsters
-            'player': ['engineer', 99, 100, 9, 4, 90, 10, libtcod.CHAR_SMILIE, 15, libtcod.white, 0, None, 0, False],
-            't_zombie': ['zombie trainee', 1, 12, 3, 2, 30, 0, 'z', 7, libtcod.Color(170, 184, 170), 12, 'o_shirt', 5, False],
-            's_zombie': ['zombie', 1, 15, 3, 3, 30, 0, 'z', 6, libtcod.Color(127, 142, 127), 15,  'o_shirt', 5, False],
-            'r_zombie': ['expert zombie', 1, 20, 4, 3, 40, 0, 'Z', 10, libtcod.Color(127, 142, 127), 20,  'o_shirt', 8, False],
+            'player': ['engineer', 99, 100, 9, 4, 90, 10, libtcod.CHAR_SMILIE, 20, libtcod.white, 0, None, 0, False],
+            't_zombie': ['zombie trainee', 1, 12, 3, 2, 30, 0, 'z', 7, libtcod.Color(170, 184, 170), 15, 'o_shirt', 5, False],
+            's_zombie': ['zombie', 1, 15, 3, 3, 30, 0, 'z', 6, libtcod.Color(127, 142, 127), 17,  'o_shirt', 5, False],
+            'r_zombie': ['expert zombie', 1, 20, 4, 3, 40, 0, 'Z', 10, libtcod.Color(127, 142, 127), 19,  'o_shirt', 8, False],
             'b_alien': ['unfriendly alien', 1, 10, 5, 1, 60, 5, 'a', 15, libtcod.Color(189, 174, 182), 15, 'mtool', 6, False],
-            'r_alien': ['xenophobic alien', 1, 15, 6, 2, 60, 10, 'A', 16, libtcod.Color(187, 180, 184), 22, 'mtool', 8, False],
-            'edcom': ['scary ED-COM', 2, 75, 12, 1, 40, 5, 'E', 99, libtcod.Color(169, 178, 168), 40, 'mtool', 20, False],
-            'goose': ['goose', 2, 10, 15, 0, 90, 15, 'g', 15, libtcod.white, 20, 'feather', 50, True],
-            'assig': ['complicated assignment', 2, 60, 9, 8, 85, 25, libtcod.CHAR_DIVISION, 20, libtcod.Color(255, 235, 137), 45, 'sleep', 80, False],
-            'alarm': ['dreaded alarm', 2, 50, 10, 10, 80, 35, libtcod.CHAR_EXCLAM_DOUBLE, 20, libtcod.Color(255, 178, 137), 55, 'sleep', 80, False],
-            'phys_ta': ['teaching assistant', 3, 55, 14, 10, 80, 10, 'T', 20, libtcod.Color(195, 130, 231), 75, 'answers', 10, False],
-            'angry': ['angry roommate', 3, 65, 18, 7, 90, 15, 'R', 20, libtcod.Color(245, 34, 23), 85, 'keys', 10, False],
-            'ece_return': ['hallucinated ECE 105 midterm', 3, 20, 35, 2, 80, 0, 'x', 20, libtcod.Color(249, 41, 82), 100, 'deflation', 90, False],
-            'thief': ['bike thief', 4, 70, 15, 23, 80, 15, 't', 20, libtcod.Color(249, 41, 82), 120, 'bicycle', 5, True],
-            'laurier': ['Laurier student', 4, 75, 20, 21, 70, 10, 'L', 20, libtcod.Color(255, 215, 0), 135, 'pride', 5, False],
-            'don': ['duty don', 4, 100, 5, 20, 80, 25, 'D', 20, libtcod.Color(61, 226, 0), 150, None, 0, False],
+            'r_alien': ['xenophobic alien', 1, 15, 6, 2, 60, 10, 'A', 16, libtcod.Color(187, 180, 184), 20, 'mtool', 8, False],
+            'edcom': ['scary ED-COM', 2, 75, 12, 1, 40, 5, 'E', 99, libtcod.Color(169, 178, 168), 99, 'mtool', 20, False],
+            'goose': ['goose', 2, 10, 15, 0, 90, 15, 'g', 15, libtcod.white, 25, 'feather', 99, True],
+            'assig': ['complicated assignment', 2, 60, 9, 8, 85, 25, libtcod.CHAR_DIVISION, 15, libtcod.Color(255, 235, 137), 50, 'sleep', 80, False],
+            'alarm': ['dreaded alarm', 2, 50, 10, 10, 80, 35, libtcod.CHAR_EXCLAM_DOUBLE, 15, libtcod.Color(255, 178, 137), 60, 'sleep', 80, False],
+            'phys_ta': ['teaching assistant', 3, 55, 14, 10, 80, 10, 'T', 99, libtcod.Color(195, 130, 231), 75, 'answers', 10, False],
+            'angry': ['angry roommate', 3, 65, 18, 7, 90, 15, 'R', 99, libtcod.Color(245, 34, 23), 90, 'keys', 10, False],
+            'ece_return': ['hallucinated ECE 105 midterm', 3, 20, 35, 2, 80, 0, 'x', 12, libtcod.Color(249, 41, 82), 110, 'deflation', 90, False],
+            'thief': ['bike thief', 4, 70, 15, 23, 80, 15, 't', 99, libtcod.Color(249, 41, 82), 140, 'bicycle', 5, True],
+            'laurier': ['Laurier student', 4, 75, 20, 21, 70, 10, 'L', 99, libtcod.Color(255, 215, 0), 165, 'pride', 5, False],
+            'don': ['duty don', 4, 100, 5, 20, 80, 25, 'D', 99, libtcod.Color(61, 226, 0), 180, None, 0, False],
             # Bosses
-            'ece': ['ECE 105 midterm', 99, 120, 15, 0, 90, 0, 'X', 15, libtcod.Color(249, 41, 82), 300, 'bell', 100, False],
-            'scribbler': ['Scribbler Bot', 99, 300, 4, 40, 50, 0, 'S', 15, libtcod.Color(231, 0, 17), 450, 'fluke', 100, True],
-            'coop': ['first co-op interview', 99, 80, 25, 0, 50, 15, 'C', 15, libtcod.Color(255, 193, 43), 400, 'job', 100, False],
-            'f_geese': ['flock of geese', 99, 150, 30, 5, 85, 20, 'G', 15, libtcod.white, 500, 'babygoose', 100, True],
-            'date': ['first date (ever)', 99, 200, 20, 25, 90, 20, 'D', 15, libtcod.Color(234, 63, 174), 750, 'peck', 100, True],
-            'trains': ['real-time trains course', 99, 250, 25, 25, 75, 15, 'T', 15, libtcod.Color(113, 150, 236), 1000, 'vision', 100, False],
-            'ironring': ['Iron Ring Ceremony', 99, 300, 10, 20, 85, 5, 'O', 15, libtcod.Color(192, 198, 175), 1500, 'iring', 100, False],
-            'headcom': ['HEADCOM', 99, 500, 30, 40, 90, 15, 'H', 15, libtcod.white, 5000, 'tool', 100, False]
+            'ece': ['ECE 105 midterm', 99, 120, 15, 0, 90, 0, 'X', 99, libtcod.Color(249, 41, 82), 300, 'bell', 100, False],
+            'scribbler': ['Scribbler Bot', 99, 300, 4, 40, 50, 0, 'S', 5, libtcod.Color(231, 0, 17), 450, 'fluke', 100, True],
+            'coop': ['first co-op interview', 99, 80, 25, 0, 50, 15, 'C', 99, libtcod.Color(255, 193, 43), 600, 'job', 100, False],
+            'f_geese': ['flock of geese', 99, 180, 30, 5, 85, 20, 'G', 99, libtcod.white, 700, 'babygoose', 100, True],
+            'date': ['first date (ever)', 99, 250, 25, 20, 90, 20, 'D', 99, libtcod.Color(234, 63, 174), 850, 'peck', 100, True],
+            'trains': ['real-time trains course', 99, 400, 25, 25, 75, 15, 'T', 99, libtcod.Color(113, 150, 236), 1200, 'vision', 100, False],
+            'ironring': ['Iron Ring Ceremony', 99, 300, 15, 45, 85, 5, 'O', 99, libtcod.Color(192, 198, 175), 1800, 'iring', 100, False],
+            'headcom': ['HEADCOM', 99, 500, 35, 40, 90, 15, 'H', 99, libtcod.white, 5000, 'tool', 100, False]
         }
 
 
@@ -380,7 +381,7 @@ p_armour = None
 SLEEP_RESTORE = 30
 SLEEP_RATE = 15
 LEVEL_HITS = 20
-VISION_BASE = 15
+VISION_BASE = 20
 
 # Keys
 KEY_ESCAPE = libtcod.KEY_ESCAPE
@@ -723,6 +724,9 @@ def check_level():
         objects.append(try_spawn('trains'))
         msg_add(Msg.SPAWN_TRAINS)
     if p_level == 8:
+        objects.append(try_spawn('ironring'))
+        msg_add(Msg.SPAWN_IRONRING)
+    if p_level == 9:
         objects.append(try_spawn('headcom'))
         msg_add(Msg.SPAWN_HEADCOM)
 
