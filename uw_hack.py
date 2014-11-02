@@ -362,7 +362,7 @@ MSG_DISPLAY = 5
 HP_THRESHOLD_GOOD = 50
 HP_THRESHOLD_OKAY = 20
 
-STARTING_CREATURES = 300
+STARTING_CREATURES = 400
 
 M = Mons
 I = Items
@@ -388,7 +388,8 @@ did_move = False
 p_weapon = None
 has_weapon = False
 p_armour = None
-SLEEP_RESTORE = 30
+SLEEP_RESTORE = 10
+SLEEP_RESTORE_RAND = 40
 SLEEP_RATE = 15
 LEVEL_HITS = 20
 VISION_BASE = 20
@@ -575,7 +576,8 @@ def player_pickup():
             if itm.item_type == I.TYPE_INSTANT:
                 if itm.name == I.I['sleep'][I.NAME]:
                     msg_add(Msg.ITM_SLEEP)
-                    player.character.take_dmg(-30)
+                    heal = SLEEP_RESTORE + libtcod.random_get_int(0, 0, SLEEP_RESTORE_RAND)
+                    player.character.take_dmg(-heal)
                     items.remove(itm)
                 if itm.name == I.I['vision'][I.NAME]:
                     msg_add(Msg.ITM_VISION)
