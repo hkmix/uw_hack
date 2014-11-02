@@ -1,6 +1,8 @@
 import libtcodpy as libtcod
 from map import Map
+from signs import Signs
 import math
+import sys
 
 
 class Object:
@@ -34,6 +36,9 @@ class Object:
 
     def distance_to(self, target):
         return math.sqrt((target.x - self.x) ** 2 + (target.y - self.y) ** 2)
+
+    def distance_to_coord(self, x, y):
+        return math.sqrt((x - self.x) ** 2 + (y - self.y) ** 2)
 
     def move_towards(self, target):
         d_x = target.x - self.x
@@ -183,7 +188,8 @@ class Mons(object):
             'f_geese': ['flock of geese', 99, 150, 30, 5, 85, 20, 'G', 15, libtcod.white, 500, 'babygoose', 100, True],
             'date': ['first date (ever)', 99, 200, 20, 25, 90, 20, 'D', 15, libtcod.Color(234, 63, 174), 750, 'peck', 100, True],
             'trains': ['real-time trains course', 99, 250, 25, 25, 75, 15, 'T', 15, libtcod.Color(113, 150, 236), 1000, 'vision', 100, False],
-            'ironring': ['Iron Ring Ceremony', 99, 300, 10, 20, 85, 5, 'O', 15, libtcod.Color(192, 198, 175), 1500, 'iring', 100, False]
+            'ironring': ['Iron Ring Ceremony', 99, 300, 10, 20, 85, 5, 'O', 15, libtcod.Color(192, 198, 175), 1500, 'iring', 100, False],
+            'headcom': ['HEADCOM', 99, 400, 30, 40, 90, 15, 'H', 15, libtcod.white, 5000, 'tool', 100, False]
         }
 
 
@@ -220,7 +226,8 @@ class Items(object):
             'pride': ['sense of pride', 20, 5, 5, 5, 5, TYPE_ARMOUR, "", '[', libtcod.Color(255, 215, 0)],
             'peck': ['peck on the cheek', 40, 5, 5, 10, 10, TYPE_WEAPON, "blushes at", libtcod.CHAR_HEART, libtcod.Color(234, 63, 174)],
             'vision': ['vision', 100, 0, 0, 0, 0, TYPE_INSTANT, "", '!', libtcod.Color(242, 101, 190)],
-            'iring': ['iron ring', 40, -5, 20, 0, -10, TYPE_ARMOUR, "", 'o', libtcod.Color(192, 198, 175)]
+            'iring': ['iron ring', 40, -5, 20, 0, -10, TYPE_ARMOUR, "", 'o', libtcod.Color(192, 198, 175)],
+            'tool': ['Ridgid 60"', 500, 99, 99, 50, 50, TYPE_WEAPON, "brings divine justice on", '|', libtcod.Color(192, 192, 192)]
         }
 
 
@@ -262,9 +269,13 @@ class MapGen(object):
                 elif Map.MAP[y][x] == '#':
                     new_map[x][y].gnd = '#'
                     new_map[x][y].block = True
-                    new_map[x][y].block_vision = False
+                    new_map[x][y].block_vision = True
                 elif Map.MAP[y][x] == '~':
                     new_map[x][y].gnd = '~'
+                    new_map[x][y].block = False
+                    new_map[x][y].block_vision = False
+                elif Map.MAP[y][x] == '=':
+                    new_map[x][y].gnd = '='
                     new_map[x][y].block = False
                     new_map[x][y].block_vision = False
                 elif Map.MAP[y][x] == ',':
@@ -301,17 +312,6 @@ class Item:
             libtcod.console_put_char(buf, self.x, self.y, self.char, libtcod.BKGND_NONE)
 
 
-class Signs(object):
-    X = 0
-    Y = 1
-    MSG = 2
-
-    S = \
-        [
-            [1, 2, "Message here"]
-        ]
-
-
 # Global constants
 SCREEN_WIDTH = 80
 SCREEN_HEIGHT = 54
@@ -327,6 +327,7 @@ KBD_RPT_INTERVAL_DELAY = 100
 STATE_PLAY = 0
 STATE_WAIT = 1
 STATE_DEAD = 2
+STATE_TITLE = 9
 STATE_EXIT = 99
 
 MV_OKAY = 0
@@ -338,8 +339,8 @@ MV_WATER = 5
 
 WATER_DMG = 15
 
-P_X = 20
-P_Y = 75
+P_X = 101
+P_Y = 51
 
 FOV_LIGHT_WALLS = True
 FOV_ALG = 0
@@ -350,15 +351,18 @@ MSG_DISPLAY = 5
 HP_THRESHOLD_GOOD = 80
 HP_THRESHOLD_OKAY = 30
 
+STARTING_CREATURES = 200
+
 M = Mons
 I = Items
 S = Signs
 
 # Global variables
-global_state = STATE_PLAY
+global_state = STATE_TITLE
 msg_history = []
 objects = []
 items = []
+signs = []
 p_fov_recalc = True
 p_vision = M.M['player'][M.VIS]
 p_turn = 0
@@ -376,6 +380,7 @@ p_armour = None
 SLEEP_RESTORE = 30
 SLEEP_RATE = 15
 LEVEL_HITS = 20
+VISION_BASE = 15
 
 # Keys
 KEY_ESCAPE = libtcod.KEY_ESCAPE
@@ -383,6 +388,7 @@ KEY_UP = libtcod.KEY_UP
 KEY_DOWN = libtcod.KEY_DOWN
 KEY_LEFT = libtcod.KEY_LEFT
 KEY_RIGHT = libtcod.KEY_RIGHT
+KEY_ENTER = libtcod.KEY_ENTER
 KEY_C_GET = ord(',')
 
 # Colours
@@ -398,6 +404,8 @@ colour_grass_seen = libtcod.Color(1, 11, 1)
 colour_grass_bright = libtcod.Color(5, 18, 5)
 colour_water_seen = libtcod.Color(0, 4, 10)
 colour_water_bright = libtcod.Color(0, 35, 60)
+colour_train_seen = libtcod.Color(8, 8, 8)
+colour_train_bright = libtcod.Color(32, 32, 32)
 colour_hp_good = libtcod.Color(102, 255, 51)
 colour_hp_okay = libtcod.Color(255, 204, 51)
 colour_hp_bad = libtcod.Color(255, 51, 102)
@@ -538,6 +546,9 @@ def handle_keys():
             player_move(1, 0)
         else:
             return STATE_WAIT
+    if global_state == STATE_TITLE:
+        if key.vk == KEY_ENTER:
+            return STATE_PLAY
 
 
 def player_pickup():
@@ -620,6 +631,11 @@ def player_pickup():
     p_turn += 1
 
 
+def create_sign(i):
+    new_sign = Object(S.S[i][S.X], S.S[i][S.Y], S.S[i][S.MSG], '?', libtcod.white, False, Object.ALIGN_NEUTRAL)
+    signs.append(new_sign)
+
+
 def make_map():
     global the_map, fov_map
     the_map = MapGen.generate_map(MAP_WIDTH, MAP_HEIGHT)
@@ -628,8 +644,10 @@ def make_map():
         for y in range(MAP_HEIGHT):
             libtcod.map_set_properties(fov_map, x, y, not the_map[x][y].block_vision, not the_map[x][y].block)
     libtcod.map_compute_fov(fov_map, player.x, player.y, p_vision, FOV_LIGHT_WALLS, FOV_ALG)
-    for i in range(200):
+    for i in range(STARTING_CREATURES):
         objects.append(create_monster())
+    for i in range(len(S.S)):
+        create_sign(i)
 
 
 def monster_death(monster):
@@ -764,18 +782,26 @@ def render_all():
                     libtcod.console_set_char_background(buf, x, y, colour_road_bright, libtcod.BKGND_SET)
                 elif the_map[x][y].gnd == '~':
                     libtcod.console_set_char_background(buf, x, y, colour_water_bright, libtcod.BKGND_SET)
+                elif the_map[x][y].gnd == '=':
+                    libtcod.console_set_char_background(buf, x, y, colour_train_bright, libtcod.BKGND_SET)
                 elif the_map[x][y].gnd == ',':
                     libtcod.console_set_char_background(buf, x, y, colour_grass_bright, libtcod.BKGND_SET)
                 else:
                     libtcod.console_set_char_background(buf, x, y, colour_ground_bright, libtcod.BKGND_SET)
                 the_map[x][y].seen = True
+            elif the_map[x][y].gnd == '#' and player.distance_to_coord(x, y) <= p_vision:
+                libtcod.console_set_char_background(buf, x, y, colour_wall_bright, libtcod.BKGND_SET)
+                the_map[x][y].seen = True
+            elif the_map[x][y].gnd == '#' and the_map[x][y].seen and player.distance_to_coord(x, y) > p_vision:
+                libtcod.console_set_char_background(buf, x, y, colour_wall_seen, libtcod.BKGND_SET)
+                the_map[x][y].seen = True
             elif the_map[x][y].seen:
-                if the_map[x][y].gnd == '#':
-                    libtcod.console_set_char_background(buf, x, y, colour_wall_seen, libtcod.BKGND_SET)
-                elif the_map[x][y].gnd == '\'':
+                if the_map[x][y].gnd == '\'':
                     libtcod.console_set_char_background(buf, x, y, colour_road_seen, libtcod.BKGND_SET)
                 elif the_map[x][y].gnd == '~':
                     libtcod.console_set_char_background(buf, x, y, colour_water_seen, libtcod.BKGND_SET)
+                elif the_map[x][y].gnd == '=':
+                    libtcod.console_set_char_background(buf, x, y, colour_train_seen, libtcod.BKGND_SET)
                 elif the_map[x][y].gnd == ',':
                     libtcod.console_set_char_background(buf, x, y, colour_grass_seen, libtcod.BKGND_SET)
                 else:
@@ -783,6 +809,12 @@ def render_all():
             else:
                 libtcod.console_set_char_background(buf, x, y, colour_dark, libtcod.BKGND_SET)
     # Objects
+    #   Signs
+    for sign in signs:
+        if libtcod.map_is_in_fov(fov_map, sign.x, sign.y):
+            if sign.x == player.x and sign.y == player.y:
+                libtcod.console_print(msg, SCREEN_WIDTH - len(sign.name), SCREEN_HEIGHT - 2, sign.name)
+            sign.draw()
     #   Corpses
     for obj in objects:
         if libtcod.map_is_in_fov(fov_map, obj.x, obj.y):
@@ -889,12 +921,24 @@ def render_all():
         str_weapon += Msg.NO_WEAPON
     libtcod.console_print(msg, 0, SCREEN_HEIGHT - 7, str_weapon)
     libtcod.console_print(msg, 0, SCREEN_HEIGHT - 6, str_armour)
-    turn_str = "Turn " + str(p_turn)
+    turn_str = "Time " + str(p_turn)
     libtcod.console_print(msg, SCREEN_WIDTH - len(turn_str), SCREEN_HEIGHT - 1, turn_str)
     # Draw
     libtcod.console_blit(blank, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, 0, 0, 0)
     libtcod.console_blit(buf, player.x - SCREEN_WIDTH/2, player.y - SCREEN_HEIGHT/2, MAP_WIDTH, MAP_HEIGHT, 0, 0, 0)
     libtcod.console_blit(msg, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, 0, 0, 0, 1, 0)
+
+
+def make_title():
+    libtcod.console_clear(buf)
+    libtcod.console_clear(msg)
+    libtcod.console_set_default_foreground(msg, colour_default)
+    libtcod.console_print(msg, 4, SCREEN_HEIGHT / 2, "ENGHack 2014 @ University at Waterloo")
+    bg = libtcod.image_load("bg.png")
+    libtcod.image_blit_rect(bg, msg, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, libtcod.BKGND_ADD)
+    libtcod.console_blit(blank, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, 0, 0, 0)
+    libtcod.console_blit(msg, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, 0, 0, 0, 1, 1)
+    libtcod.console_flush()
 
 
 libtcod.console_set_custom_font("terminal12x12_gs_ro.png", libtcod.FONT_TYPE_GREYSCALE | libtcod.FONT_LAYOUT_ASCII_INROW)
@@ -912,6 +956,17 @@ player = Object(P_X, P_Y, M.M['player'][M.NAME], M.M['player'][M.CHAR], M.M['pla
 objects.append(player)
 make_map()
 
+# Title loop
+while not libtcod.console_is_window_closed():
+    make_title()
+    do_exit = handle_keys()
+    if do_exit == STATE_EXIT:
+        sys.exit(0)
+    elif do_exit == STATE_PLAY:
+        break
+
+
+global_state = STATE_PLAY
 # Main loop
 while not libtcod.console_is_window_closed():
     # Output
@@ -922,6 +977,6 @@ while not libtcod.console_is_window_closed():
     do_exit = handle_keys()
     # Processing
     if do_exit == STATE_EXIT:
-        break
+        sys.exit(0)
     elif do_exit == STATE_PLAY:
         handle_enemies()
