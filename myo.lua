@@ -38,11 +38,7 @@ function onPoseEdge(pose, edge)
 				YAW_RIGHT=YAW_RIGHT+myo.getYaw()
 			end
 			PITCH_UP=PITCH_UP/10
-			YAW_RIGHT=YAW_RIGHT/10
-			if (YAW_RIGHT < 0) then
-				YAW_RIGHT = math.pi-YAW_RIGHT
-			end
-			YAW_RIGHT = YAW_RIGHT+3
+			YAW_RIGHT=YAW_RIGHT/10+3
 			INITIALIZE=2
 			myo.debug("Make the finger spread gesture in the down and left position.")
 		elseif (INITIALIZE==2) then
@@ -51,11 +47,7 @@ function onPoseEdge(pose, edge)
 				YAW_LEFT=YAW_LEFT+myo.getYaw()
 			end
 			PITCH_DOWN=PITCH_DOWN/10
-			YAW_LEFT=YAW_LEFT/10
-			if (YAW_LEFT < 0) then
-				YAW_LEFT = math.pi-YAW_LEFT
-			end
-			YAW_LEFT = YAW_LEFT+3
+			YAW_LEFT=YAW_LEFT/10+3
 			INITIALIZE=3
 			myo.debug("Your Myo is now calibrated :)")
 		elseif (INITIALIZE==3) then
@@ -79,15 +71,11 @@ function onPeriodic()
 			myo.keyboard("down_arrow", "press")
 			myo.debug("Down!")
 		end
-		yaw=myo.getYaw()
-		if (yaw<0) then
-			yaw = math.pi-yaw
-		end
-		if(yaw+3 < YAW_RIGHT) then
+		if(myo.getYaw()+3 < YAW_RIGHT) then
 			myo.keyboard("right_arrow", "press")
 			myo.debug("Right!")
 		end
-		if(yaw+3 > YAW_LEFT) then
+		if(myo.getYaw()+3 > YAW_LEFT) then
 			myo.keyboard("left_arrow", "press")
 			myo.debug("Left!")
 		end
