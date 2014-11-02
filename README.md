@@ -14,12 +14,12 @@ Defeat creatures, gain experience, and find powerful weapons and armour. Bosses 
 
 ### Myo
 
-See `myo.lua` for a Myo-controlled version of the game. Calibration:
+See `myo.lua` for a Myo-controlled version of the game. Ensure that the Myo is on the right arm with the face of the device pointed to the right and the power bar facing the back. Calibration:
 
 1. Finger spread at centre
 2. Finger spread at upper-right
 3. Finger spread at lower-left
 
-**Swipe left** to start game, **finger spread** to pick up, and **move forearm** to control movement.
+**Wave in (swipe left)** to start game, **finger spread** to pick up, and **move forearm** to control movement.
 
 ![Rogue@UW screenshot](/hack_screen.png?raw=true)
