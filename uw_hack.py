@@ -24,7 +24,7 @@ class Object:
             self.behaviour.owner = self
 
     def move(self, dx, dy):
-        if not the_map[self.x + dx][self.y + dy].block:
+        if legal_move(self.x + dx, self.y + dy) == MV_OKAY:
             self.x += dx
             self.y += dy
 
@@ -33,14 +33,14 @@ class Object:
         libtcod.console_put_char(buf, self.x, self.y, self.char, libtcod.BKGND_NONE)
 
     def distance_to(self, target):
-        return math.sqrt((target.x - self.x) ** 2 + (target.y - self.x) ** 2)
+        return math.sqrt((target.x - self.x) ** 2 + (target.y - self.y) ** 2)
 
     def move_towards(self, target):
         d_x = target.x - self.x
         d_y = target.y - self.y
-        if d_x > 0:
+        if d_x != 0:
             d_x /= abs(d_x)
-        if d_y > 0:
+        if d_y != 0:
             d_y /= abs(d_y)
         if d_x != 0 and d_y != 0:
             if libtcod.random_get_int(0, 0, 1) == 0:
@@ -52,13 +52,13 @@ class Object:
 
 
 class Tile:
-    def __init__(self, block, block_vision=None):
+    def __init__(self, block, block_vision=None, gnd=None):
         self.block = block
         self.seen = False
-        #Blocked tiles hinder sight
-        if block_vision is None:
-            block_vision = block
-        self.block_vision = block_vision
+        if block_vision:
+            self.block_vision = block_vision
+        if gnd:
+            self.gnd = gnd
 
 
 class Msg(object):
@@ -91,7 +91,7 @@ class Character():
                 self.death_func(self.owner)
 
     def attack(self, target):
-        max_dmg = Character.damage_formula(self.atk, target.character.df)
+        max_dmg = int(Character.damage_formula(self.atk, target.character.df))
         does_hit = libtcod.random_get_int(0, 0, 100)
         if does_hit > self.acc:
             # Miss
@@ -104,12 +104,12 @@ class Character():
         else:
             # Regular hit
             dmg = libtcod.random_get_int(0, 0, max_dmg)
-            msg_add("The " + self.owner.name + " hits the " + target.name + " for " + str(dmg) + "damage.")
+            msg_add("The " + self.owner.name + " hits the " + target.name + " for " + str(dmg) + " damage.")
             target.character.take_dmg(dmg)
 
     @staticmethod
     def damage_formula(atk, df):
-        return round(max(atk - df) + atk / 4)
+        return round(max(atk - df, 1) + atk / 4)
 
 
 class Mons(object):
@@ -129,22 +129,22 @@ class Mons(object):
 
     M = \
         {
-            'player': ['engineer', 0, 100, 9, 4, 90, 10, '@', 10, libtcod.white, 0, None],
+            'player': ['engineer', 99, 100, 9, 4, 90, 10, '@', 10, libtcod.white, 0, None],
             't_zombie': ['zombie trainee', 1, 12, 3, 2, 30, 0, 'z', 5, libtcod.Color(110, 124, 110), 12, None],
             's_zombie': ['small zombie', 1, 15, 3, 3, 30, 0, 'z', 6, libtcod.Color(57, 72, 57), 15, None],
             'r_zombie': ['zombie', 1, 20, 4, 3, 40, 0, 'Z', 8, libtcod.Color(57, 72, 57), 20, None],
             'b_alien': ['unfriendly alien', 1, 10, 5, 1, 60, 5, 'a', 10, libtcod.Color(139, 124, 132), 15, None],
             'r_alien': ['xenophobic alien', 1, 15, 6, 2, 60, 10, 'A', 12, libtcod.Color(157, 140, 144), 22, None],
             'edcom': ['scary ED-COM', 2, 90, 12, 1, 40, 5, 'E', 7, libtcod.Color(129, 138, 128), 250, None],
-            'x_zombie': ['X-formation zombies', 4, 120, 12, 1, 40, 5, 'X', 7, libtcod.Color(144, 250, 133), 250, None],
-            'f_geese': ['flock of geese', 10, 200, 30, 20, 85, 20, 'G', 12, libtcod.Color(157, 140, 144), 22, None]
+            'x_zombie': ['X-formation zombies', 99, 120, 12, 1, 40, 5, 'X', 7, libtcod.Color(144, 250, 133), 250, None],
+            'f_geese': ['flock of geese', 99, 200, 30, 20, 85, 20, 'G', 12, libtcod.Color(157, 140, 144), 22, None]
         }
 
 
 class Monster(object):
     def take_turn(self):
         monster = self.owner
-        if libtcod.map_is_in_fov(the_map, monster.x, monster.y):
+        if libtcod.map_is_in_fov(fov_map, monster.x, monster.y):
             if monster.distance_to(player) > 1:
                 monster.move_towards(player)
             else:
@@ -161,8 +161,16 @@ class MapGen(object):
                     new_map[x][y].gnd = '#'
                     new_map[x][y].block = True
                     new_map[x][y].block_vision = True
+                elif Map.MAP[y][x] == '\'':
+                    new_map[x][y].gnd = '\''
+                    new_map[x][y].block = False
+                    new_map[x][y].block_vision = False
+                elif Map.MAP[y][x] == ',':
+                    new_map[x][y].gnd = ','
+                    new_map[x][y].block = False
+                    new_map[x][y].block_vision = False
                 else:
-                    new_map[x][y].gnd = ' '
+                    new_map[x][y].gnd = '.'
                     new_map[x][y].block = False
                     new_map[x][y].block_vision = False
         return new_map
@@ -196,10 +204,10 @@ FOV_LIGHT_WALLS = True
 FOV_ALG = 0
 
 MSG_HISTORY_MAX = 100
-MSG_DISPLAY = 8
+MSG_DISPLAY = 5
 
-HP_THRESHOLD_GOOD = 0.8
-HP_THRESHOLD_OKAY = 0.3
+HP_THRESHOLD_GOOD = 80
+HP_THRESHOLD_OKAY = 30
 
 M = Mons
 
@@ -211,6 +219,7 @@ p_fov_recalc = True
 p_vision = M.M['player'][M.VIS]
 p_turn = 0
 p_time = 0
+p_level = 1
 
 # Keys
 KEY_UP = libtcod.KEY_UP
@@ -220,15 +229,38 @@ KEY_RIGHT = libtcod.KEY_RIGHT
 
 # Colours
 colour_default = libtcod.white
-colour_wall_dark = libtcod.black
+colour_dark = libtcod.black
 colour_wall_seen = libtcod.Color(66, 69, 77)
 colour_wall_bright = libtcod.Color(125, 129, 136)
-colour_ground_dark = libtcod.black
+colour_ground_seen = libtcod.Color(21, 26, 36)
+colour_ground_bright = libtcod.Color(33, 35, 40)
 colour_ground_seen = libtcod.Color(21, 26, 36)
 colour_ground_bright = libtcod.Color(33, 35, 40)
 colour_hp_good = libtcod.Color(102, 255, 51)
 colour_hp_okay = libtcod.Color(255, 204, 51)
 colour_hp_bad = libtcod.Color(255, 51, 102)
+
+
+def create_monster():
+    # Create array of possible monsters
+    possible = []
+    for entry in M.M:
+        if M.M[entry][M.LVL] - p_level <= 1:
+            possible.append(entry)
+    r = possible[libtcod.random_get_int(0, 0, len(possible) - 1)]
+    x = 0
+    y = 0
+    while True:
+        x = libtcod.random_get_int(0, 1, MAP_WIDTH - 1)
+        y = libtcod.random_get_int(0, 1, MAP_HEIGHT - 1)
+        if legal_move(x, y) == MV_OKAY:
+            break
+    new_mons_char = Character(M.M[r][M.HP], M.M[r][M.ATK], M.M[r][M.DEF], M.M[r][M.ACC], M.M[r][M.AVO], M.M[r][M.CHAR],
+                              M.M[r][M.VIS], M.M[r][M.COL], M.M[r][M.EXP], death_func=monster_death)
+    new_mons_ai = Monster()
+    new_mons = Object(x, y, M.M[r][M.NAME], M.M[r][M.CHAR], M.M[r][M.COL], True, Object.ALIGN_ENEMY,
+                      character=new_mons_char, behaviour=new_mons_ai)
+    return new_mons
 
 
 def legal_move(x, y):
@@ -240,12 +272,12 @@ def legal_move(x, y):
     return MV_OKAY
 
 
-def msg_add(msg):
-    if msg == "":
+def msg_add(new_msg):
+    if new_msg == "":
         return
     if len(msg_history) >= MSG_HISTORY_MAX:
         del msg_history[0]
-    msg_history.insert(0, msg)
+    msg_history.insert(0, new_msg)
 
 
 def player_death(obj):
@@ -306,26 +338,44 @@ def make_map():
         for y in range(MAP_HEIGHT):
             libtcod.map_set_properties(fov_map, x, y, not the_map[x][y].block_vision, not the_map[x][y].block)
     libtcod.map_compute_fov(fov_map, player.x, player.y, p_vision, FOV_LIGHT_WALLS, FOV_ALG)
+    for i in range(50):
+        objects.append(create_monster())
+
+
+def monster_death(monster):
+    msg_add("The " + monster.name + " exists no more.")
+    monster.blocks = False
+    monster.character = None
+    monster.behaviour = None
+    monster.char = '%'
 
 
 def handle_enemies():
     for obj in objects:
         if obj.align == Object.ALIGN_ENEMY:
-            if obj.ai:
-                obj.ai.take_turn()
+            if obj.behaviour:
+                obj.behaviour.take_turn()
 
 
 def get_colour_hp():
-    if player.character.hp / player.character.mhp > HP_THRESHOLD_GOOD:
+    if player.character.hp * 100 / player.character.mhp > HP_THRESHOLD_GOOD:
         return colour_hp_good
-    elif player.character.hp / player.character.mhp > HP_THRESHOLD_OKAY:
+    elif player.character.hp * 100 / player.character.mhp > HP_THRESHOLD_OKAY:
         return colour_hp_okay
     else:
         return colour_hp_bad
 
 
+def grammar_a(name):
+    if name[0] == 'a' or name[0] == 'e' or name[0] == 'i' or name[0] == 'o' or name[0] == 'u':
+        return "an"
+    else:
+        return "a"
+
+
 def render_all():
     libtcod.console_clear(buf)
+    libtcod.console_clear(msg)
     # FOV
     global p_fov_recalc
     if p_fov_recalc:
@@ -347,25 +397,24 @@ def render_all():
                 else:
                     libtcod.console_set_char_background(buf, x, y, colour_ground_seen, libtcod.BKGND_SET)
             else:
-                if the_map[x][y].block_vision:
-                    libtcod.console_set_char_background(buf, x, y, colour_wall_dark, libtcod.BKGND_SET)
-                else:
-                    libtcod.console_set_char_background(buf, x, y, colour_ground_dark, libtcod.BKGND_SET)
+                libtcod.console_set_char_background(buf, x, y, colour_dark, libtcod.BKGND_SET)
     # Objects
     if global_state == STATE_PLAY:
         global objects
         objects.remove(player)
-        objects.insert(0, player)
+        objects.append(player)
     for obj in objects:
         if libtcod.map_is_in_fov(fov_map, obj.x, obj.y):
             obj.draw()
+        if obj.x == player.x and obj.y == player.y and obj.align == Object.ALIGN_ENEMY:
+            msg_add("The brutalized remains of " + grammar_a(obj.name) + " " + obj.name + " are here.")
     # Messages
     for i in range(MSG_DISPLAY):
         if i >= len(msg_history):
             break
-        libtcod.console_set_default_foreground(msg, libtcod.Color(255-255/MSG_DISPLAY*i,
-                                                                  255-255/MSG_DISPLAY*i,
-                                                                  255-255/MSG_DISPLAY*i))
+        libtcod.console_set_default_foreground(msg, libtcod.Color(255-255/(MSG_DISPLAY + 1)*i,
+                                                                  255-255/(MSG_DISPLAY + 1)*i,
+                                                                  255-255/(MSG_DISPLAY + 1)*i))
         libtcod.console_print(msg, 0, i, msg_history[i])
     # HUD
     libtcod.console_set_default_foreground(msg, colour_default)
