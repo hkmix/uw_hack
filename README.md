@@ -5,5 +5,7 @@ A simple roguelike in Python 2.7.8 and libtcod. Get to level 7, retrieve the Too
 
 ### Controls
 
-**Arrow keys**: Movement
-**, (comma)**: Pick up
+* **Arrow keys**: Movement
+* **, (comma)**: Pick up
+
+![Rogue@UW screenshot](/hack_screen.png?raw=true)
