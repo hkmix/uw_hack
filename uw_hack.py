@@ -949,7 +949,7 @@ def make_title():
 
 
 libtcod.console_set_custom_font("terminal12x12_gs_ro.png", libtcod.FONT_TYPE_GREYSCALE | libtcod.FONT_LAYOUT_ASCII_INROW)
-libtcod.console_init_root(SCREEN_WIDTH, SCREEN_HEIGHT, "UW @ ENGHack 2014", False)
+libtcod.console_init_root(SCREEN_WIDTH, SCREEN_HEIGHT, "Rogue@UW - ENGHack 2014", False)
 libtcod.console_set_keyboard_repeat(KBD_RPT_INIT_DELAY, KBD_RPT_INTERVAL_DELAY)
 buf = libtcod.console_new(MAP_WIDTH, MAP_HEIGHT)
 blank = libtcod.console_new(SCREEN_WIDTH, SCREEN_HEIGHT)
