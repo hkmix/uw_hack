@@ -70,10 +70,12 @@ class Msg(object):
     WATER = "The dihydrogen monoxide plays games with your lungs!"
     NO_ARMOUR = "Bare skin"
     NO_WEAPON = "Fists"
+    ITM_SLEEP = "You finally get some sleep."
+    SPAWN_ECE = "It is now time for the ECE 105 midterm."
 
 
 class Character():
-    def __init__(self, hp, atk, df, acc, avo, vis, col, xp, rate, drop=None, death_func=None):
+    def __init__(self, hp, atk, df, acc, avo, vis, col, xp, rate, drop=None, death_func=None, speedy=False):
         self.hp = hp
         self.mhp = hp
         self.atk = atk
@@ -88,6 +90,8 @@ class Character():
             self.drop = drop
         if death_func:
             self.death_func = death_func
+        if speedy:
+            self.speedy = True
 
     def take_dmg(self, damage):
         self.hp -= damage
@@ -100,10 +104,10 @@ class Character():
     def attack(self, target):
         max_dmg = int(Character.damage_formula(self.atk, target.character.df))
         does_hit = libtcod.random_get_int(0, 0, 100)
-        if does_hit > self.acc:
+        if does_hit > self.acc - target.character.avo:
             # Miss
             msg_add("The " + self.owner.name + " swings at the " + target.name + " and misses!")
-        elif does_hit <= round(self.acc / 15):
+        elif does_hit <= round((self.acc - target.character.avo) / 15):
             # Critical chance: ACC / 15
             dmg = libtcod.random_get_int(0, max_dmg, max_dmg * 2)
             if target.name == M.M['edcom'][M.NAME]:
@@ -144,16 +148,18 @@ class Mons(object):
     EXP = 10
     DROP = 11
     RATE = 12
+    SPD = 13
 
     M = \
         {
             'player': ['engineer', 99, 100, 9, 4, 90, 10, libtcod.CHAR_SMILIE, 15, libtcod.white, 0, None, 0],
-            't_zombie': ['zombie trainee', 1, 12, 3, 2, 30, 0, 'z', 5, libtcod.Color(170, 184, 170), 12, 'o_shirt', 3],
+            't_zombie': ['zombie trainee', 1, 12, 3, 2, 30, 0, 'z', 7, libtcod.Color(170, 184, 170), 12, 'o_shirt', 3],
             's_zombie': ['zombie', 1, 15, 3, 3, 30, 0, 'z', 6, libtcod.Color(127, 142, 127), 15,  'o_shirt', 4],
-            'r_zombie': ['expert zombie', 1, 20, 4, 3, 40, 0, 'Z', 8, libtcod.Color(127, 142, 127), 20,  'o_shirt', 5],
-            'b_alien': ['unfriendly alien', 1, 10, 5, 1, 60, 5, 'a', 10, libtcod.Color(189, 174, 182), 15, 'mtool', 6],
-            'r_alien': ['xenophobic alien', 1, 15, 6, 2, 60, 10, 'A', 12, libtcod.Color(187, 180, 184), 22, 'mtool', 8],
-            'edcom': ['scary ED-COM', 2, 75, 12, 1, 40, 5, 'E', 7, libtcod.Color(169, 178, 168), 50, 'mtool', 20],
+            'r_zombie': ['expert zombie', 1, 20, 4, 3, 40, 0, 'Z', 10, libtcod.Color(127, 142, 127), 20,  'o_shirt', 5],
+            'b_alien': ['unfriendly alien', 1, 10, 5, 1, 60, 5, 'a', 15, libtcod.Color(189, 174, 182), 15, 'mtool', 6],
+            'r_alien': ['xenophobic alien', 1, 15, 6, 2, 60, 10, 'A', 16, libtcod.Color(187, 180, 184), 22, 'mtool', 8],
+            'edcom': ['scary ED-COM', 2, 75, 12, 1, 40, 5, 'E', 99, libtcod.Color(169, 178, 168), 50, 'mtool', 20],
+            'ece': ['ECE 105 midterm', 99, 120, 15, 0, 90, 0, 'X', 15, libtcod.Color(249, 41, 82), 300, 'bell', 100],
             'x_zombie': ['X-formation zombies', 99, 120, 12, 1, 40, 5, 'X', 7, libtcod.Color(144, 250, 133), 250, None, 0],
             'f_geese': ['flock of geese', 99, 200, 30, 20, 85, 20, 'G', 12, libtcod.Color(157, 140, 144), 22, None, 0]
         }
@@ -173,17 +179,35 @@ class Items(object):
 
     TYPE_WEAPON = 0
     TYPE_ARMOUR = 1
+    TYPE_INSTANT = 2
 
     I = \
         {
             'o_shirt': ['light-red orientation shirt', 5, 0, 1, 0, 2, TYPE_ARMOUR, "", '[', libtcod.Color(255, 90, 90)],
-            'mtool': ['somewhat functional multitool', 0, 1, 0, 5, 0, TYPE_WEAPON, "weakly prods", ')', libtcod.Color(255, 217, 0)]
+            'bell': ['bell curve', 20, 0, 0, 0, 15, TYPE_ARMOUR, "", '[', libtcod.Color(255, 90, 90)],
+            'mtool': ['somewhat functional multitool', 0, 1, 0, 5, 0, TYPE_WEAPON, "weakly prods", ')', libtcod.Color(255, 217, 0)],
+            'sleep': ['good night\'s rest', 20, 0, 0, 0, 0, TYPE_INSTANT, "", '!', libtcod.Color(242, 101, 190)]
         }
 
 
 class Monster(object):
     def take_turn(self):
         monster = self.owner
+        if libtcod.map_is_in_fov(fov_map, monster.x, monster.y):
+            if monster.distance_to(player) > 1:
+                monster.move_towards(player)
+            else:
+                monster.character.attack(player)
+
+
+class MonsterDouble(object):
+    def take_turn(self):
+        monster = self.owner
+        if libtcod.map_is_in_fov(fov_map, monster.x, monster.y):
+            if monster.distance_to(player) > 1:
+                monster.move_towards(player)
+            else:
+                monster.character.attack(player)
         if libtcod.map_is_in_fov(fov_map, monster.x, monster.y):
             if monster.distance_to(player) > 1:
                 monster.move_towards(player)
@@ -315,6 +339,8 @@ did_move = False
 p_weapon = None
 has_weapon = False
 p_armour = None
+SLEEP_RESTORE = 30
+SLEEP_RATE = 15
 
 # Keys
 KEY_ESCAPE = libtcod.KEY_ESCAPE
@@ -363,7 +389,21 @@ def create_monster():
     else:
         new_mons_char.drop = None
     new_mons_ai = Monster()
+    if M.M[r][]
     new_mons = Object(x, y, M.M[r][M.NAME], M.M[r][M.CHAR], M.M[r][M.COL], True, Object.ALIGN_ENEMY,
+                      character=new_mons_char, behaviour=new_mons_ai)
+    return new_mons
+
+
+def create_specific_monster(name, x, y):
+    new_mons_char = Character(M.M[name][M.HP], M.M[name][M.ATK], M.M[name][M.DEF], M.M[name][M.ACC], M.M[name][M.AVO], M.M[name][M.VIS],
+                              M.M[name][M.COL], M.M[name][M.EXP], M.M[name][M.RATE], death_func=monster_death)
+    if M.M[name][M.DROP] is not None:
+        new_mons_char.drop = M.M[name][M.DROP]
+    else:
+        new_mons_char.drop = None
+    new_mons_ai = Monster()
+    new_mons = Object(x, y, M.M[name][M.NAME], M.M[name][M.CHAR], M.M[name][M.COL], True, Object.ALIGN_ENEMY,
                       character=new_mons_char, behaviour=new_mons_ai)
     return new_mons
 
@@ -469,10 +509,16 @@ def player_pickup():
     global p_armour, p_weapon
     for itm in items:
         if itm.x == player.x and itm.y == player.y and not itm.is_held:
-            msg_add("You pick up " + grammar_a(itm.name) + " " + itm.name + ".")
             did_pickup = True
+            if itm.item_type == I.TYPE_INSTANT:
+                if itm.name == I.I['sleep'][I.NAME]:
+                    msg_add(Msg.ITM_SLEEP)
+                    player.character.take_dmg(-30)
+                    items.remove(itm)
+            else:
+                msg_add("You pick up " + grammar_a(itm.name) + " " + itm.name + ".")
             # Pick it up
-            if itm.item_type == Items.TYPE_ARMOUR:
+            if itm.item_type == I.TYPE_ARMOUR:
                 if p_armour is None:
                     p_armour = itm
                     itm.is_held = True
@@ -496,7 +542,7 @@ def player_pickup():
                     player.character.avo -= p_armour.avo_bst
                     player.character.mhp -= p_armour.hp_bst
                     p_armour = itm
-            if itm.item_type == Items.TYPE_WEAPON:
+            if itm.item_type == I.TYPE_WEAPON:
                 global has_weapon
                 has_weapon = True
                 if p_weapon is None:
@@ -542,9 +588,11 @@ def monster_death(monster):
     msg_add("The " + monster.name + " is no more.")
     global p_exp, p_reqexp, p_level, items
     p_exp += int(monster.character.xp)
+    did_drop_item = False
     if monster.character.drop:
         if libtcod.random_get_int(0, 1, 100) <= monster.character.rate:
             do_drop = True
+            did_drop_item = True
             for itm in items:
                 if itm.x == monster.x and itm.y == monster.y:
                     do_drop = False
@@ -554,8 +602,22 @@ def monster_death(monster):
                 new_item = Item(I.I[n][I.NAME], I.I[n][I.HP], I.I[n][I.ATK], I.I[n][I.DEF], I.I[n][I.ACC], I.I[n][I.AVO],
                                 I.I[n][I.TYPE], False, I.I[n][I.VERB], monster.x, monster.y, I.I[n][I.CHAR], I.I[n][I.COL])
                 items.append(new_item)
-                msg_add(grammar_a(new_item.name).capitalize() + " " + new_item.name + " drops from the " + monster.name +
-                        ".")
+                msg_add(grammar_a(new_item.name).capitalize() + " " + new_item.name + " drops from the " +
+                        monster.name + ".")
+    if not did_drop_item:
+        if libtcod.random_get_int(0, 1, 100) <= SLEEP_RATE:
+            do_drop = True
+            for itm in items:
+                if itm.x == monster.x and itm.y == monster.y:
+                    do_drop = False
+            if do_drop:
+                # Drop item
+                n = 'sleep'
+                new_item = Item(I.I[n][I.NAME], I.I[n][I.HP], I.I[n][I.ATK], I.I[n][I.DEF], I.I[n][I.ACC], I.I[n][I.AVO],
+                                I.I[n][I.TYPE], False, I.I[n][I.VERB], monster.x, monster.y, I.I[n][I.CHAR], I.I[n][I.COL])
+                items.append(new_item)
+                msg_add(grammar_a(new_item.name).capitalize() + " appears from the bowels of " +
+                        monster.name + ".")
     if p_exp >= p_reqexp:
         p_exp -= p_reqexp
         # Formula: LVL^1.5 * 100 rounded to nearest 100
@@ -568,10 +630,29 @@ def monster_death(monster):
         player.character.df += gain_def
         player.character.mhp += gain_def * p_hpup
         player.character.hp = player.character.mhp
+        check_level()
     monster.blocks = False
     monster.character = None
     monster.behaviour = None
     monster.char = '%'
+
+
+def check_level():
+    if p_level == 2:
+        # ECE 105 midterm
+        objects.append(try_spawn('ece'))
+        msg_add(Msg.SPAWN_ECE)
+
+
+def try_spawn(name):
+    if legal_move(player.x + 1, player.y) == MV_OKAY:
+        return create_specific_monster(name, player.x + 1, player.y)
+    if legal_move(player.x - 1, player.y) == MV_OKAY:
+        return create_specific_monster(name, player.x - 1, player.y)
+    if legal_move(player.x, player.y + 1) == MV_OKAY:
+        return create_specific_monster(name, player.x, player.y + 1)
+    if legal_move(player.x, player.y - 1) == MV_OKAY:
+        return create_specific_monster(name, player.x, player.y - 1)
 
 
 def handle_enemies():
@@ -645,7 +726,7 @@ def render_all():
             obj.draw()
     #   Items
     for itm in items:
-        if itm.x == player.x and itm.y == player.y and not itm.is_held:
+        if itm.x == player.x and itm.y == player.y and not itm.is_held and did_move:
             msg_add("There is " + grammar_a(itm.name) + " " + itm.name + " here.")
         if libtcod.map_is_in_fov(fov_map, itm.x, itm.y):
             if not itm.is_held:
@@ -714,6 +795,7 @@ def render_all():
                           str(player.character.hp))
     libtcod.console_set_default_foreground(msg, colour_default)
     libtcod.console_print(msg, 7, SCREEN_HEIGHT - 10, "/" + str(player.character.mhp) + str_hp)
+    libtcod.console_print(msg, 0, SCREEN_HEIGHT - 12, "LVL " + str(p_level))
     libtcod.console_print(msg, 0, SCREEN_HEIGHT - 9, "EXP " + (len(str(p_reqexp)) - len(str(p_exp))) * ' ' +
                           str(p_exp) + "/" + str(p_reqexp))
     # Armour
