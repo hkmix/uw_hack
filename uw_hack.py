@@ -63,6 +63,8 @@ class Tile:
 
 class Msg(object):
     HIT_WALL = "You knowingly walk into a wall. What are you thinking?!"
+    HIT_EDGE = "Whoa, that's the edge of the world!"
+    HIT_LAURIER = "Whoa, you are not a Laurier student!"
     DEAD = "The little engineer is no more."
 
 
@@ -129,13 +131,13 @@ class Mons(object):
 
     M = \
         {
-            'player': ['engineer', 99, 100, 9, 4, 90, 10, '@', 10, libtcod.white, 0, None],
-            't_zombie': ['zombie trainee', 1, 12, 3, 2, 30, 0, 'z', 5, libtcod.Color(110, 124, 110), 12, None],
-            's_zombie': ['small zombie', 1, 15, 3, 3, 30, 0, 'z', 6, libtcod.Color(57, 72, 57), 15, None],
-            'r_zombie': ['zombie', 1, 20, 4, 3, 40, 0, 'Z', 8, libtcod.Color(57, 72, 57), 20, None],
-            'b_alien': ['unfriendly alien', 1, 10, 5, 1, 60, 5, 'a', 10, libtcod.Color(139, 124, 132), 15, None],
-            'r_alien': ['xenophobic alien', 1, 15, 6, 2, 60, 10, 'A', 12, libtcod.Color(157, 140, 144), 22, None],
-            'edcom': ['scary ED-COM', 2, 90, 12, 1, 40, 5, 'E', 7, libtcod.Color(129, 138, 128), 250, None],
+            'player': ['engineer', 99, 100, 9, 4, 90, 10, '@', 15, libtcod.white, 0, None],
+            't_zombie': ['zombie trainee', 1, 12, 3, 2, 30, 0, 'z', 5, libtcod.Color(170, 184, 170), 12, None],
+            's_zombie': ['zombie', 1, 15, 3, 3, 30, 0, 'z', 6, libtcod.Color(127, 142, 127), 15, None],
+            'r_zombie': ['expert zombie', 1, 20, 4, 3, 40, 0, 'Z', 8, libtcod.Color(127, 142, 127), 20, None],
+            'b_alien': ['unfriendly alien', 1, 10, 5, 1, 60, 5, 'a', 10, libtcod.Color(189, 174, 182), 15, None],
+            'r_alien': ['xenophobic alien', 1, 15, 6, 2, 60, 10, 'A', 12, libtcod.Color(187, 180, 184), 22, None],
+            'edcom': ['scary ED-COM', 2, 90, 12, 1, 40, 5, 'E', 7, libtcod.Color(169, 178, 168), 50, None],
             'x_zombie': ['X-formation zombies', 99, 120, 12, 1, 40, 5, 'X', 7, libtcod.Color(144, 250, 133), 250, None],
             'f_geese': ['flock of geese', 99, 200, 30, 20, 85, 20, 'G', 12, libtcod.Color(157, 140, 144), 22, None]
         }
@@ -196,9 +198,11 @@ STATE_EXIT = 99
 MV_OKAY = 0
 MV_OBJ = 1
 MV_BLOCK = 2
+MV_EDGEWORLD = 3
+MV_LAURIER = 4
 
-P_X = 10
-P_Y = 10
+P_X = 190
+P_Y = 240
 
 FOV_LIGHT_WALLS = True
 FOV_ALG = 0
@@ -220,6 +224,8 @@ p_vision = M.M['player'][M.VIS]
 p_turn = 0
 p_time = 0
 p_level = 1
+p_exp = 0
+p_reqexp = 100
 
 # Keys
 KEY_UP = libtcod.KEY_UP
@@ -234,8 +240,10 @@ colour_wall_seen = libtcod.Color(66, 69, 77)
 colour_wall_bright = libtcod.Color(125, 129, 136)
 colour_ground_seen = libtcod.Color(21, 26, 36)
 colour_ground_bright = libtcod.Color(33, 35, 40)
-colour_ground_seen = libtcod.Color(21, 26, 36)
-colour_ground_bright = libtcod.Color(33, 35, 40)
+colour_road_seen = libtcod.Color(14, 16, 20)
+colour_road_bright = libtcod.Color(20, 23, 28)
+colour_grass_seen = libtcod.Color(1, 11, 1)
+colour_grass_bright = libtcod.Color(5, 18, 5)
 colour_hp_good = libtcod.Color(102, 255, 51)
 colour_hp_okay = libtcod.Color(255, 204, 51)
 colour_hp_bad = libtcod.Color(255, 51, 102)
@@ -255,8 +263,8 @@ def create_monster():
         y = libtcod.random_get_int(0, 1, MAP_HEIGHT - 1)
         if legal_move(x, y) == MV_OKAY:
             break
-    new_mons_char = Character(M.M[r][M.HP], M.M[r][M.ATK], M.M[r][M.DEF], M.M[r][M.ACC], M.M[r][M.AVO], M.M[r][M.CHAR],
-                              M.M[r][M.VIS], M.M[r][M.COL], M.M[r][M.EXP], death_func=monster_death)
+    new_mons_char = Character(M.M[r][M.HP], M.M[r][M.ATK], M.M[r][M.DEF], M.M[r][M.ACC], M.M[r][M.AVO], M.M[r][M.VIS],
+                              M.M[r][M.COL], M.M[r][M.EXP], death_func=monster_death)
     new_mons_ai = Monster()
     new_mons = Object(x, y, M.M[r][M.NAME], M.M[r][M.CHAR], M.M[r][M.COL], True, Object.ALIGN_ENEMY,
                       character=new_mons_char, behaviour=new_mons_ai)
@@ -264,7 +272,11 @@ def create_monster():
 
 
 def legal_move(x, y):
-    if the_map[x][y].block or x >= MAP_WIDTH or x < 0 or y >= MAP_HEIGHT or y < 0:
+    if x >= MAP_WIDTH:
+        return MV_LAURIER
+    elif x < 0 or y >= MAP_HEIGHT or y < 0:
+        return MV_EDGEWORLD
+    elif the_map[x][y].block:
         return MV_BLOCK
     for obj in objects:
         if obj.x == x and obj.y == y and obj.blocks:
@@ -284,7 +296,7 @@ def player_death(obj):
     global global_state
     global_state = STATE_DEAD
     msg_add(Msg.DEAD)
-    objects.remove(obj)
+    player.char = '%'
 
 
 def player_move(d_x, d_y):
@@ -299,12 +311,16 @@ def player_move(d_x, d_y):
             p_fov_recalc = True
         elif move_result == MV_OBJ:
             for obj in objects:
-                if obj.x == player.x + d_x and obj.y == player.y + d_y:
+                if obj.x == player.x + d_x and obj.y == player.y + d_y and obj.blocks:
                     target = obj
                     break
+        elif move_result == MV_EDGEWORLD:
+            msg_add(Msg.HIT_EDGE)
+        elif move_result == MV_LAURIER:
+            msg_add(Msg.HIT_LAURIER)
         else:
             msg_add(Msg.HIT_WALL)
-        if (not target is None) and target.align == Object.ALIGN_ENEMY:
+        if (not target is None) and target.align == Object.ALIGN_ENEMY and target.blocks:
             player.character.attack(target)
     handle_enemies()
     global p_turn, p_time
@@ -344,10 +360,16 @@ def make_map():
 
 def monster_death(monster):
     msg_add("The " + monster.name + " exists no more.")
+    p_exp += int(monster.character.xp)
     monster.blocks = False
     monster.character = None
     monster.behaviour = None
     monster.char = '%'
+    global p_exp, p_reqexp, p_level
+    if p_exp >= p_reqexp:
+        # Formula: LVL^1.5 * 200 rounded to nearest 100
+        p_level += 1
+        p_reqexp = int(math.pow(p_level, 1.5) * 200) - int(math.pow(p_level, 1.5) * 200) % 100
 
 
 def handle_enemies():
@@ -385,15 +407,22 @@ def render_all():
     for x in range(MAP_WIDTH):
         for y in range(MAP_HEIGHT):
             if libtcod.map_is_in_fov(fov_map, x, y):
-                if the_map[x][y].block_vision:
+                if the_map[x][y].gnd == '#':
                     libtcod.console_set_char_background(buf, x, y, colour_wall_bright, libtcod.BKGND_SET)
-                    the_map[x][y].seen = True
+                elif the_map[x][y].gnd == '\'':
+                    libtcod.console_set_char_background(buf, x, y, colour_road_bright, libtcod.BKGND_SET)
+                elif the_map[x][y].gnd == ',':
+                    libtcod.console_set_char_background(buf, x, y, colour_grass_bright, libtcod.BKGND_SET)
                 else:
                     libtcod.console_set_char_background(buf, x, y, colour_ground_bright, libtcod.BKGND_SET)
-                    the_map[x][y].seen = True
+                the_map[x][y].seen = True
             elif the_map[x][y].seen:
-                if the_map[x][y].block_vision:
+                if the_map[x][y].gnd == '#':
                     libtcod.console_set_char_background(buf, x, y, colour_wall_seen, libtcod.BKGND_SET)
+                elif the_map[x][y].gnd == '\'':
+                    libtcod.console_set_char_background(buf, x, y, colour_road_seen, libtcod.BKGND_SET)
+                elif the_map[x][y].gnd == ',':
+                    libtcod.console_set_char_background(buf, x, y, colour_grass_seen, libtcod.BKGND_SET)
                 else:
                     libtcod.console_set_char_background(buf, x, y, colour_ground_seen, libtcod.BKGND_SET)
             else:
@@ -401,13 +430,21 @@ def render_all():
     # Objects
     if global_state == STATE_PLAY:
         global objects
+        for i in range(len(objects)):
+            obj = objects[i]
+            if obj.align == Object.ALIGN_ENEMY and not obj.blocks:
+                objects.remove(obj)
+                objects.insert(0, obj)
         objects.remove(player)
         objects.append(player)
     for obj in objects:
         if libtcod.map_is_in_fov(fov_map, obj.x, obj.y):
             obj.draw()
         if obj.x == player.x and obj.y == player.y and obj.align == Object.ALIGN_ENEMY:
-            msg_add("The brutalized remains of " + grammar_a(obj.name) + " " + obj.name + " are here.")
+            if obj.name == M.M['edcom'][M.NAME]:
+                msg_add(grammar_a(obj.name).capitalize() + " " + obj.name + " is sleeping gracefully here.")
+            else:
+                msg_add("The brutalized remains of " + grammar_a(obj.name) + " " + obj.name + " are here.")
     # Messages
     for i in range(MSG_DISPLAY):
         if i >= len(msg_history):
@@ -422,7 +459,8 @@ def render_all():
     libtcod.console_set_default_foreground(msg, get_colour_hp())
     libtcod.console_print(msg, 3, SCREEN_HEIGHT - 2, str(player.character.hp))
     libtcod.console_set_default_foreground(msg, colour_default)
-    libtcod.console_print(msg, 3 + len(str(player.character.hp)), SCREEN_HEIGHT - 2, "/" + str(player.character.mhp))
+    libtcod.console_print(msg, 3 + len(str(player.character.hp)), SCREEN_HEIGHT - 2, "/" + str(player.character.mhp) +
+                          " EXP " + (len(str(p_reqexp)) - len(str(p_exp))) * ' ' + str(p_exp) + "/" + str(p_reqexp))
     libtcod.console_print(msg, 0, SCREEN_HEIGHT - 1, "Turn " + str(p_turn))
     # Draw
     libtcod.console_blit(blank, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, 0, 0, 0)
